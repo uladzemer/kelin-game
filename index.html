@@ -634,6 +634,15 @@ html,body{margin:0!important;padding:0!important;background:#120c08!important;ov
 @media(max-height:520px){#kelin-game .intro.menu .intro-art{height:22dvh!important}#kelin-game .intro.menu .story-replay{min-height:34px!important;padding:4px 16px!important;margin-top:4px!important}#kelin-game .mode-pick{margin:2px auto 6px}#kelin-game .mode-pick button{min-height:44px}}
 
 #kelin-game .boost[data-boost="husband"] .booster-icon,#kelin-game .game-menu .boost[data-boost="husband"] .booster-icon{background:var(--mood2) 0 0/300% auto no-repeat!important;border-radius:10px}
+/* reward notice: a slim pill at the bottom edge of the table that drops into the booster bar — never covers the game */
+#kelin-game .drop{top:auto!important;bottom:40px;left:50%;width:auto!important;max-width:calc(100% - 2 * var(--gut));padding:6px 14px 6px 10px!important;border-radius:22px!important;display:flex;align-items:center;gap:8px;white-space:nowrap;background:#2a170ee6!important;border:1.5px solid #ffd76a!important;box-shadow:0 0 14px #ffc53a66,0 6px 14px #0008!important;z-index:9}
+#kelin-game .drop[hidden]{display:none!important}
+#kelin-game .drop small{display:none!important}
+#kelin-game .drop strong{display:inline!important;margin:0!important;font:800 15px 'Rubik',sans-serif!important;color:#ffe9a8!important}
+#kelin-game .drop strong::before{content:'🎁 ';}
+#kelin-game .drop strong::after{content:'  ↓';color:#ffd76a}
+#kelin-game .drop.arriving{animation:kelin-drop-pill 1.7s ease-in-out both!important}
+@keyframes kelin-drop-pill{0%{opacity:0;transform:translate(-50%,10px) scale(.7)}15%{opacity:1;transform:translate(-50%,0) scale(1.05)}25%{transform:translate(-50%,0) scale(1)}75%{opacity:1;transform:translate(-50%,0)}100%{opacity:0;transform:translate(-50%,60px) scale(.6)}}
 @media(prefers-reduced-motion:reduce){#kelin-game .guest.low .face,#kelin-game .guest.angry .face,#kelin-game .thumb.urgent,#kelin-game .cup .stream{animation:none}#kelin-game .bonus-kelin{transition:none}}
 </style>
 <section class="intro splash" aria-label="Вступление и главное меню"><div class="intro-top"><span>13TH DEV STUDIO</span><button type="button" class="intro-skip">Пропустить</button></div><div class="studio-logo">13<small>GAMES</small></div><div class="intro-art" aria-hidden="true"><div class="intro-person"></div><div class="intro-person"></div><div class="intro-person"></div><div class="intro-person"></div><div class="intro-kelin"></div></div><h1 data-intro-title>КЕЛІН</h1><p class="intro-copy"></p><div class="intro-progress"></div><button type="button" class="play intro-next">Дальше</button><div class="intro-footer">ЧАЙ, ТЕПЛО И НЕМНОГО ПЕРЕПОЛОХА</div></section>
@@ -804,7 +813,7 @@ function reward(){
  let id='turbo';
  if(rewards>0){for(let tries=0;tries<16;tries++){if(!bag.length){bag=['turbo','turbo','dash','dash','freeze','shield','double','feast','husband'];for(let i=bag.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[bag[i],bag[j]]=[bag[j],bag[i]];}}id=bag.pop();if((inventory[id]||0)<STOCK_CAP)break;}}
  sound.event('reward');rewards++;
- const full=(inventory[id]||0)>=STOCK_CAP;dropUntil=time+2.8;
+ const full=(inventory[id]||0)>=STOCK_CAP;dropUntil=time+1.7;
  if(full)score+=150;else{inventory[id]=(inventory[id]||0)+1;newUntil[id]=time+5;}
  if(state==='bonus'){if(full)bonusExtra+=150;else bonusBoosters++;}
  const drop=$('.drop');$('[data-drop-name]').textContent=full?'+150 баллов':config[id].label;$('[data-drop-hint]').textContent=full?'Запас бустеров полон':'+1 в запас · бустер внизу светится';drop.classList.remove('arriving');void drop.offsetWidth;drop.classList.add('arriving');drop.hidden=false;
