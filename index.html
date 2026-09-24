@@ -584,6 +584,12 @@ html,body{margin:0!important;padding:0!important;background:#120c08!important;ov
 
 #kelin-game .coach-ene{float:left;width:56px;height:74px;margin:0 12px 4px 0;border-radius:14px;border:2px solid #ffd76a;background:var(--mood1) 0 0/300% auto no-repeat;box-shadow:0 4px 10px #0008}
 #kelin-game .coach-actions{clear:both}
+/* dialogs: buttons as one vertical list, same size */
+#kelin-game .game-menu .secondary,#kelin-game .overlay>div .play,#kelin-game .overlay>div .secondary,#kelin-game .overlay-links .link,#kelin-game .menu-actions .secondary,#kelin-game .menu-actions .menu-close{display:flex;align-items:center;justify-content:center;width:100%!important;min-height:48px!important;margin:0!important;padding:10px 16px!important;border-radius:14px!important;font-size:15px!important;box-sizing:border-box}
+#kelin-game .overlay>div .secondary,#kelin-game .overlay-links .link,#kelin-game .menu-actions .secondary{background:#2a1a12!important;border:1px solid #bd976288!important;color:#f0dcc0!important}
+#kelin-game .overlay>div .play{margin-top:4px!important}
+#kelin-game .overlay>div .secondary,#kelin-game .overlay-links{margin-top:8px!important}
+#kelin-game .overlay-links,#kelin-game .menu-actions{display:flex!important;flex-direction:column!important;gap:8px!important}
 @media(prefers-reduced-motion:reduce){#kelin-game .guest.low .face,#kelin-game .guest.angry .face,#kelin-game .thumb.urgent,#kelin-game .cup .stream{animation:none}#kelin-game .bonus-kelin{transition:none}}
 </style>
 <section class="intro splash" aria-label="Вступление и главное меню"><div class="intro-top"><span>13TH DEV STUDIO</span><button type="button" class="intro-skip">Пропустить</button></div><div class="studio-logo">13<small>GAMES</small></div><div class="intro-art" aria-hidden="true"><div class="intro-person"></div><div class="intro-person"></div><div class="intro-person"></div><div class="intro-person"></div><div class="intro-kelin"></div></div><h1 data-intro-title>КЕЛІН</h1><p class="intro-copy"></p><div class="intro-progress"></div><button type="button" class="play intro-next">Дальше</button><div class="intro-footer">ЧАЙ, ТЕПЛО И НЕМНОГО ПЕРЕПОЛОХА</div></section>
