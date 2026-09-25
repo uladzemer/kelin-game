@@ -1005,6 +1005,11 @@ html,body,#kelin-game,#kelin-game *{touch-action:manipulation}
 #kelin-game .u-father{height:21%;aspect-ratio:150/210;transform:translate(-50%,-100%) scaleX(var(--face,1));background:var(--u-husband2) 50% 0/300% 100% no-repeat;pointer-events:none;filter:drop-shadow(0 0 1.5px #fff9) drop-shadow(0 5px 4px #0009)}
 #kelin-game .u-father.sitting{height:21%;aspect-ratio:170/210;background-image:var(--u-father,var(--u-husband2))}
 #kelin-game .u-father[hidden]{display:none}
+
+/* phones: no blend modes (they are costly on iPhone); plain translucent light instead */
+#kelin-game .u-flame,#kelin-game .u-hearth::after,#kelin-game .u-doorlight,#kelin-game .u-vapor{mix-blend-mode:normal!important}
+#kelin-game .yard::after{mix-blend-mode:normal!important;background:rgba(40,60,130,calc(var(--dusk,0) * .12 + var(--night,0) * .16))!important}
+#kelin-game .u-flame{opacity:.85}
 </style>
 <section class="intro splash" aria-label="Вступление и главное меню"><div class="intro-top"><span>13TH DEV STUDIO</span><button type="button" class="intro-skip">Пропустить</button></div><div class="studio-logo">13<small>GAMES</small></div><div class="intro-art" aria-hidden="true"><div class="intro-person"></div><div class="intro-person"></div><div class="intro-person"></div><div class="intro-person"></div><div class="intro-kelin"></div></div><h1 data-intro-title>КЕЛІН</h1><p class="intro-copy"></p><div class="intro-progress"></div><button type="button" class="play intro-next">Дальше</button><div class="intro-footer">ДЕТИ, КАЗАН, ЧАЙ И ГОСТИ</div></section>
 <header class="top"><div><div class="brand">КЕЛІН</div><div class="sub">БӘРІНЕ ҮЛГЕР!</div></div><button class="pause" type="button" disabled>Пауза</button></header>
@@ -1021,8 +1026,14 @@ html,body,#kelin-game,#kelin-game *{touch-action:manipulation}
 (()=>{'use strict';
 // «Келін: бәріне үлгер!» — a day in the yurt: a baby in the cradle, a toddler who runs off, the hearth, the kazan,
 // tea for the family and guests at the door. Same series look and flow as «Келін — чайный переполох».
+// The pictures are embedded as huge data: URLs in CSS variables. Every style recalculation would carry those
+// megabytes along (the game stuttered on phones), so at start they become short blob: URLs.
+(()=>{const st=document.getElementById('art-assets');if(!st)return;const map={data:0};const out=st.textContent.replace(/url\(data:([\w/+.-]+);base64,([A-Za-z0-9+/=]+)\)/g,(m,type,b64)=>{try{const bin=atob(b64),bytes=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)bytes[i]=bin.charCodeAt(i);return 'url('+URL.createObjectURL(new Blob([bytes],{type}))+')';}catch(e){return m;}});st.textContent=out;})();
 const root=document.getElementById('kelin-game');
 const $=s=>root.querySelector(s);
+// style writes with a cache: only real changes reach the browser (keeps phones smooth)
+function S(e,p,v){const c=e.__s||(e.__s={});v=String(v);if(c[p]!==v){c[p]=v;e.style[p]=v;}}
+function V(e,p,v,imp){const c=e.__v||(e.__v={});v=String(v);if(c[p]!==v){c[p]=v;e.style.setProperty(p,v,imp);}}
 const random=(a,b)=>a+Math.random()*(b-a);
 const pick=list=>list[Math.floor(Math.random()*list.length)];
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
@@ -1096,17 +1107,17 @@ const TOUR_KEY='ulger-tour-v2';
 
 // ---------- The yurt (positions in % of the square yard picture; x from the left, y from the top — y is where the feet are)
 const P={
- cradle:[20,44],cradleStand:[32,45],nurseSpot:[32,49],ajeSpot:[33,39],
- mat:[19,58],matStand:[30,60],ataSpot:[33,53],
+ cradle:[23,44],cradleStand:[34,46],nurseSpot:[34,50],ajeSpot:[35,39],
+ mat:[22,59],matStand:[32,61],ataSpot:[35,54],
  hearth:[50,50],hearthStand:[50,62],
  wood:[70,70],woodStand:[63,73],
  samovar:[79,26],samovarStand:[73,34],
- door:[51,82],doorStand:[45,77],guestWait:[52,94],husbandWait:[47,93],dog:[62,92],dogStand:[57,86],
+ door:[51,82],doorStand:[45,77],guestWait:[55,90],husbandWait:[45,90],dog:[63,89],dogStand:[57,86],
  tableStand:[60,35],
 };
 // The toddler's own corner of the yurt (the play rug and around it): he runs and grabs things only here.
-const ZONE={x0:6,x1:35,y0:44,y1:70};
-const GRABS=[{x:8,y:46,item:'piala'},{x:35,y:48,item:'ladle'},{x:24,y:70,item:'piala'}];
+const ZONE={x0:13,x1:36,y0:46,y1:70};
+const GRABS=[{x:14,y:48,item:'piala'},{x:36,y:48,item:'ladle'},{x:25,y:70,item:'piala'}];
 // Seats around the dastarkhan (historical order: the tor, opposite the door, is for the elders):
 // 0 Ата and 1 Әже at the sides, 2 and 3 for guests at the back, 4 for Жаным in front.
 // bub: where that person's speech bubble goes (outside the table so it covers no one).
@@ -1176,7 +1187,7 @@ const yard=document.createElement('div');yard.className='yard';arena.append(yard
 function el(cls,parent=yard,tag='div'){const e=document.createElement(tag);e.className=cls;parent.append(e);return e;}
 function hit(cls,label){const b=el(cls+' u-hit',yard,'button');b.type='button';b.setAttribute('aria-label',label);return b;}
 const SHANYRAK=[50,38];/* the crown of the dome, projected on the picture */
-const beamEl=el('u-beam');const sunEl=el('u-sun');const horseEls=[[11,94,0,0],[27,99,3,2.1]].map(([x,y,first,shift])=>{const e=el('u-horse');e.style.left=x+'%';e.style.top=y+'%';e.style.zIndex=Math.round(y*10);return {e,first,shift};});const moonEl=el('u-moon');const doorLight=el('u-doorlight');
+const beamEl=el('u-beam');const sunEl=el('u-sun');const horseEls=[[17,93,0,0],[31,99,3,2.1]].map(([x,y,first,shift])=>{const e=el('u-horse');S(e,'left',x+'%');S(e,'top',y+'%');S(e,'zIndex',Math.round(y*10));return {e,first,shift};});const moonEl=el('u-moon');const doorLight=el('u-doorlight');
 const hearthEl=el('u-hearth');hearthEl.innerHTML='<i class="u-flame"></i><i class="u-steam"></i><span class="u-fuel"><b></b></span><span class="u-cook"><b></b></span>';
 const woodEl=hit('u-wood','Поленница: принести дрова к очагу');
 const samovarHit=hit('u-samovar','Самовар: наполнить чайник');samovarHit.innerHTML='<i class="u-vapor"></i><i class="u-vapor two"></i>';const samovarMeter=el('u-meter samo');samovarMeter.innerHTML='<i class="u-need" hidden></i><b><i></i></b><em></em>';const fireMeter=el('u-meter fire');fireMeter.innerHTML='<i class="u-need" hidden></i><b><i></i></b><em></em>';const cookMeter=el('u-meter cook');cookMeter.innerHTML='<i class="u-need" hidden></i><b><i></i></b><em></em>';
@@ -1192,17 +1203,17 @@ const bowlEl=el('u-bowl');
 const ajeEl=el('u-elder aje');const ataEl=el('u-elder ata');const fatherEl=el('u-father');
 const kelinEl=el('u-kelin');kelinEl.innerHTML='<i class="u-body"></i><span class="u-pot" title="Чайник"></span>';
 const helperEl=el('u-helper');
-const seatEls=SEATS.map((s,i)=>{const b=hit('u-seat','Место '+i);b.dataset.seat=i;b.innerHTML='<i class="u-face"></i><small></small>';b.style.left=s.x+'%';b.style.top=s.y+'%';b.style.zIndex=Math.round((s.y+6)*10);return b;});
-const cupEls=SEATS.map((s,i)=>{const c=hit('u-cup','Пиала');c.innerHTML='<span class="u-tea"><i></i></span><em></em>';c.style.left=s.cup[0]+'%';c.style.top=s.cup[1]+'%';c.style.zIndex=Math.round(s.cup[1]*10);c.onclick=()=>request('tea',i);return c;});
-const kurtEl=el('u-kurt');const zNeed=el('u-want-food');zNeed.hidden=true;zNeed.style.left=(SEATS[4].x-9)+'%';zNeed.style.top=(SEATS[4].y-5)+'%';
+const seatEls=SEATS.map((s,i)=>{const b=hit('u-seat','Место '+i);b.dataset.seat=i;b.innerHTML='<i class="u-face"></i><small></small>';S(b,'left',s.x+'%');S(b,'top',s.y+'%');S(b,'zIndex',Math.round((s.y+6)*10));return b;});
+const cupEls=SEATS.map((s,i)=>{const c=hit('u-cup','Пиала');c.innerHTML='<span class="u-tea"><i></i></span><em></em>';S(c,'left',s.cup[0]+'%');S(c,'top',s.cup[1]+'%');S(c,'zIndex',Math.round(s.cup[1]*10));c.onclick=()=>request('tea',i);return c;});
+const kurtEl=el('u-kurt');const zNeed=el('u-want-food');zNeed.hidden=true;S(zNeed,'left',(SEATS[4].x-9)+'%');S(zNeed,'top',(SEATS[4].y-5)+'%');
 const bubbleFor=new Map();
-function bubble(target,text,kind='thanks',ms=1800){let b=bubbleFor.get(target);if(!b){b=el('u-bubble');bubbleFor.set(target,b);}const atTable=target.classList.contains('u-seat');if(atTable)for(const [t,o] of bubbleFor)if(o!==b&&t.classList.contains('u-seat'))o.classList.remove('show');b.textContent=text;b.className='u-bubble '+kind;const r=target.getBoundingClientRect(),y=yard.getBoundingClientRect();if(!y.width||!r.width)return;const top=(r.top-y.top)/y.height*100;let bx=(r.left+r.width/2-y.left)/y.width*100,by=Math.max(2,top-1),below=top<14;if(atTable){const S=SEATS[+target.dataset.seat];bx=S.bub[0];by=S.bub[1];below=true;}b.classList.toggle('below',below);b.style.left=bx+'%';b.style.top=(below&&!atTable?(r.bottom-y.top)/y.height*100+1:by)+'%';requestAnimationFrame(()=>{const bw=b.offsetWidth/y.width*100,vis=arena.getBoundingClientRect(),minX=(vis.left-y.left)/y.width*100+bw/2+1,maxX=(vis.right-y.left)/y.width*100-bw/2-1;b.style.left=clamp(bx,minX,Math.max(minX,maxX))+'%';});void b.offsetWidth;b.classList.add('show');clearTimeout(b.timer);b.timer=setTimeout(()=>b.classList.remove('show'),ms);}
+function bubble(target,text,kind='thanks',ms=1800){let b=bubbleFor.get(target);if(!b){b=el('u-bubble');bubbleFor.set(target,b);}const atTable=target.classList.contains('u-seat');if(atTable)for(const [t,o] of bubbleFor)if(o!==b&&t.classList.contains('u-seat'))o.classList.remove('show');b.textContent=text;b.className='u-bubble '+kind;const r=target.getBoundingClientRect(),y=yard.getBoundingClientRect();if(!y.width||!r.width)return;const top=(r.top-y.top)/y.height*100;let bx=(r.left+r.width/2-y.left)/y.width*100,by=Math.max(2,top-1),below=top<14;if(atTable){const S=SEATS[+target.dataset.seat];bx=S.bub[0];by=S.bub[1];below=true;}b.classList.toggle('below',below);S(b,'left',bx+'%');S(b,'top',(below&&!atTable?(r.bottom-y.top)/y.height*100+1:by)+'%');requestAnimationFrame(()=>{const bw=b.offsetWidth/y.width*100,vis=arena.getBoundingClientRect(),minX=(vis.left-y.left)/y.width*100+bw/2+1,maxX=(vis.right-y.left)/y.width*100-bw/2-1;S(b,'left',clamp(bx,minX,Math.max(minX,maxX))+'%');});void b.offsetWidth;b.classList.add('show');clearTimeout(b.timer);b.timer=setTimeout(()=>b.classList.remove('show'),ms);}
 const rings={};
 function ring(key){if(!rings[key]){rings[key]=el('u-ring');rings[key].innerHTML='<i></i>';}return rings[key];}
 const phaseEl=el('u-phase');phaseEl.innerHTML='<b></b><small></small>';
 const gainEl=el('gain');gainEl.setAttribute('aria-hidden','true');
-const place=(e,[x,y])=>{e.style.left=x+'%';e.style.top=y+'%';};
-place(cradleEl,P.cradle);place(woodEl,P.wood);place(samovarHit,P.samovar);place(doorEl,P.door);place(hearthEl,P.hearth);place(kurtEl,[50,25]);const dishEl=el('u-dish-on');place(dishEl,[50,25]);kurtEl.style.zIndex=200;dishEl.style.zIndex=200;
+const place=(e,[x,y])=>{S(e,'left',x+'%');S(e,'top',y+'%');};
+place(cradleEl,P.cradle);place(woodEl,P.wood);place(samovarHit,P.samovar);place(doorEl,P.door);place(hearthEl,P.hearth);place(kurtEl,[50,25]);const dishEl=el('u-dish-on');place(dishEl,[50,25]);S(kurtEl,'zIndex',200);S(dishEl,'zIndex',200);
 
 // ---------- Kelin's work: every task is a small route of steps (go / act)
 const TASKS={
@@ -1403,7 +1414,7 @@ function toddlerSpeed(){return 4.6*Math.sqrt(pace())*(EASY()?.8:1);}
 function startMischief(){if(Math.random()<.55){toddler.state='mischief';toddler.mischiefStart=time;toddler.goal={...pick(GRABS)};toddler.item=null;bubble(toddlerEl,'Ойнайын!','ask',1200);}else startWalk();}
 function startWalk(){const T=toddler;if(Math.hypot(T.x-P.mat[0],T.y-P.mat[1])>30){T.x=P.mat[0];T.y=P.mat[1];}T.state='walk';T.target=round===1||Math.random()<.55?'hearth':'door';T.walkStart=time;const g=T.target==='hearth'?[P.hearth[0]-9,P.hearth[1]+9]:[P.door[0]-3,P.door[1]-4];T.walkTotal=Math.max(3,Math.hypot(g[0]-T.x,g[1]-T.y)/toddlerSpeed());bubble(toddlerEl,T.target==='hearth'?'Ой, от!':'Далаға!','ask',1400);}
 // Ата and Әже leave the dastarkhan for a while to sit with the grandchildren.
-const FATHER_KID=[10,64],FATHER_BABY=[31,49];
+const FATHER_KID=[14,66],FATHER_BABY=[34,50];
 function tickFather(dt){const F=father,s=seats[4];if(!s||s.who!=='zhanym'){F.state='idle';return;}const home=[SEATS[4].x,SEATS[4].y+8];
  if(F.state==='idle'&&!s.welcome&&!s.wantsFood&&time-F.fedAt>3){F.x=home[0];F.y=home[1];s.away=true;F.state=toddler.state==='play'&&elders.ata.state==='seat'?'toKid':'toBaby';}
  if(F.state==='toKid')stepTo(F,FATHER_KID,14*dt,()=>{if(toddler.state!=='play'||kelin.carry==='toddler'||kelin.job&&kelin.job.type==='toddler'){F.state='toBaby';return;}F.state='withKid';F.until=time+10;toddler.state='grandpa';toddler.x=P.mat[0];toddler.y=P.mat[1];dropJobs('toddler');bubble(fatherEl,'Кел, ұлым, ойнайық!','thanks',1800);});
@@ -1433,7 +1444,7 @@ function loseHeart(n,why){mood=Math.max(0,mood-n);if(why)notify(why+' · −'+(n
 const overlay=$('.overlay'),pause=$('.pause'),status=$('.status');
 function say(text){if(status.textContent!==text)status.textContent=text;}
 function notify(text){say(text);noticeUntil=time+1.9;}
-function showGain(value,[x,y],award,minus){gainEl.replaceChildren();if(award){const w=document.createElement('b');w.textContent=award[0];const m=document.createElement('em');m.textContent='('+award[2]+')';gainEl.append(w,m);if(award[1]!=='miss')sound.event('award-'+award[1]);}if(value>0||minus){const pts=document.createElement('span');pts.textContent=minus?'−'+minus:'+'+value;gainEl.append(pts);}gainEl.className='gain '+(award?award[1]:'plain');gainEl.style.left='50%';gainEl.style.top='50%';void gainEl.offsetWidth;gainEl.classList.add('show');gainUntil=time+1.1;}
+function showGain(value,[x,y],award,minus){gainEl.replaceChildren();if(award){const w=document.createElement('b');w.textContent=award[0];const m=document.createElement('em');m.textContent='('+award[2]+')';gainEl.append(w,m);if(award[1]!=='miss')sound.event('award-'+award[1]);}if(value>0||minus){const pts=document.createElement('span');pts.textContent=minus?'−'+minus:'+'+value;gainEl.append(pts);}gainEl.className='gain '+(award?award[1]:'plain');S(gainEl,'left','50%');S(gainEl,'top','50%');void gainEl.offsetWidth;gainEl.classList.add('show');gainUntil=time+1.1;}
 function reward(){
  let id='turbo';
  if(rewards>0){for(let tries=0;tries<16;tries++){if(!bag.length){bag=['turbo','husband','lullaby','toy','quickfood','feast','double','lullaby','toy'];for(let i=bag.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[bag[i],bag[j]]=[bag[j],bag[i]];}}id=bag.pop();if((inventory[id]||0)<STOCK_CAP)break;}}
@@ -1455,8 +1466,8 @@ function useBoost(id){if(state!=='playing'||!(inventory[id]>0)||active(id))retur
 
 // ---------- Rounds (one round = one day), attempts, customs, honors, final verdict
 function show(title,body,label,action,secondaryLabel,secondaryAction,portrait,extra){overlay.innerHTML='';const wrap=document.createElement('div');const tag=document.createElement('div');tag.className='tag';tag.textContent='КЕЛІН · БӘРІНЕ ҮЛГЕР!';const h=document.createElement('h2');h.textContent=title;const p=document.createElement('p');p.textContent=body;const b=document.createElement('button');b.className='play';b.type='button';b.textContent=label;b.onclick=action;wrap.append(tag);
- if(portrait&&portrait.startsWith('img:')){const art=document.createElement('div');art.className='overlay-art';art.style.backgroundImage='var(--'+portrait.slice(4)+')';wrap.append(art);}
- else if(portrait){const [set,frame]=portrait.split(':'),pic=document.createElement('div');pic.className='overlay-portrait';pic.style.backgroundImage='var(--'+(set==='kelin'?'kelin-moods':'mood'+set)+')';pic.style.backgroundPosition=(Number(frame)*50)+'% 0';wrap.append(pic);}
+ if(portrait&&portrait.startsWith('img:')){const art=document.createElement('div');art.className='overlay-art';S(art,'backgroundImage','var(--'+portrait.slice(4)+')');wrap.append(art);}
+ else if(portrait){const [set,frame]=portrait.split(':'),pic=document.createElement('div');pic.className='overlay-portrait';S(pic,'backgroundImage','var(--'+(set==='kelin'?'kelin-moods':'mood'+set)+')');S(pic,'backgroundPosition',(Number(frame)*50)+'% 0');wrap.append(pic);}
  wrap.append(h,p,b);if(secondaryLabel){const other=document.createElement('button');other.type='button';other.className='secondary';other.textContent=secondaryLabel;other.onclick=secondaryAction;wrap.append(other);}
  if(extra){const row=document.createElement('div');row.className='overlay-links';for(const [t,fn] of extra){const x=document.createElement('button');x.type='button';x.className='link';x.textContent=t;x.onclick=fn;row.append(x);}wrap.append(row);}
  overlay.append(wrap);overlay.hidden=false;b.focus();}
@@ -1556,8 +1567,8 @@ function hint(){
 
 // ---------- Render
 const roundLabel=document.createElement('div');roundLabel.className='round-label';$('.top').querySelector('div').append(roundLabel);
-function spriteAt(elm,frame,frames){elm.style.backgroundPosition=(frames>1?frame*100/(frames-1):0)+'% 0';}
-function meter(elm,k,need,text){elm.hidden=false;elm.style.setProperty('--k',clamp(k,0,1));elm.classList.toggle('low',k<=.35);elm.classList.toggle('zero',k<=0);const n=elm.querySelector('.u-need');n.hidden=need===null;if(need!==null)spriteAt(n,need,6);elm.querySelector('em').textContent=text;}
+function spriteAt(elm,frame,frames){S(elm,'backgroundPosition',(frames>1?frame*100/(frames-1):0)+'% 0');}
+function meter(elm,k,need,text){elm.hidden=false;V(elm,'--k',clamp(k,0,1));elm.classList.toggle('low',k<=.35);elm.classList.toggle('zero',k<=0);const n=elm.querySelector('.u-need');n.hidden=need===null;if(need!==null)spriteAt(n,need,6);elm.querySelector('em').textContent=text;}
 function render(){
  measure();renderMenuButtons();renderThumbs();
  const part=baby?dayPart():['Таң','утро'];
@@ -1570,26 +1581,26 @@ function render(){
  if(!baby)return;
  const playing=state==='playing',t=dayT();
  // the sun: light from the shanyrak crosses the floor from the west (morning) to the east (evening)
- const ang=Math.PI*t,edge=Math.max(0,1-Math.min(t,1-t)/.18),r=30+10*edge,sx=50+r*Math.sin(ang)*.8,sy=44-r*Math.cos(ang)*.85;sunEl.style.left=sx+'%';sunEl.style.top=sy+'%';{const col=t<.2?[255,196,120,.75-t*1.5]:t<.64?[255,248,220,.35]:t<CALM?[255,150,90,.28]:[90,110,170,.35];doorLight.style.setProperty('--dl','rgba('+col.join(',')+')');doorLight.style.setProperty('--dlen',(t<.2?1.25-t:t<.64?.6:.45).toFixed(2));}sunEl.style.setProperty('--rot',(-ang*180/Math.PI)+'deg');sunEl.style.setProperty('--stretch',(1+edge*.7).toFixed(3));{const dx=sx-SHANYRAK[0],dy=sy-SHANYRAK[1],len=Math.hypot(dx,dy);beamEl.style.height=len+'%';beamEl.style.transform='translateX(-50%) rotate('+(-Math.atan2(dx,dy)*180/Math.PI)+'deg)';}{const up=clamp(t/.45,0,1),down=clamp((CALM-t)/(CALM-.6),0,1),k=up*up*(3-2*up)*down*down*(3-2*down);yard.style.setProperty('--sunk',k.toFixed(3));}yard.style.setProperty('--night',Math.max(0,(t-CALM)/(1-CALM)).toFixed(3));moonEl.style.left=(38+t*6)+'%';moonEl.style.top='58%';yard.style.setProperty('--dusk',Math.max(0,(t-.7)/.3).toFixed(3));yard.style.setProperty('--dawn',Math.max(0,1-t/.15).toFixed(3));
+ const ang=Math.PI*t,edge=Math.max(0,1-Math.min(t,1-t)/.18),r=30+10*edge,sx=50+r*Math.sin(ang)*.8,sy=44-r*Math.cos(ang)*.85;S(sunEl,'left',sx.toFixed(1)+'%');S(sunEl,'top',sy.toFixed(1)+'%');{const col=t<.2?[255,196,120,.75-t*1.5]:t<.64?[255,248,220,.35]:t<CALM?[255,150,90,.28]:[90,110,170,.35];V(doorLight,'--dl','rgba('+col.join(',')+')');V(doorLight,'--dlen',(t<.2?1.25-t:t<.64?.6:.45).toFixed(2));}V(sunEl,'--rot',(-ang*180/Math.PI)+'deg');V(sunEl,'--stretch',(1+edge*.7).toFixed(2));{const dx=sx-SHANYRAK[0],dy=sy-SHANYRAK[1],len=Math.hypot(dx,dy);S(beamEl,'height',len+'%');S(beamEl,'transform','translateX(-50%) rotate('+(-Math.atan2(dx,dy)*180/Math.PI)+'deg)');}{const up=clamp(t/.45,0,1),down=clamp((CALM-t)/(CALM-.6),0,1),k=up*up*(3-2*up)*down*down*(3-2*down);V(yard,'--sunk',k.toFixed(2));}V(yard,'--night',Math.max(0,(t-CALM)/(1-CALM)).toFixed(2));S(moonEl,'left',(38+t*6)+'%');S(moonEl,'top','58%');V(yard,'--dusk',Math.max(0,(t-.7)/.3).toFixed(2));V(yard,'--dawn',Math.max(0,1-t/.15).toFixed(2));
  // cradle and baby
  const holding=kelin.job&&kelin.job.type==='baby'&&kelin.job.holding;const rocking=kelin.job&&kelin.job.type==='baby'&&kelin.pose==='rock';
  const ajeHere=elders.aje.state==='kids';
  spriteAt(cradleEl,baby.state==='cry'?1:(baby.state==='sleep'&&!ajeHere?0:2),3);cradleEl.classList.toggle('empty',!!holding);cradleEl.classList.toggle('rocking',!!rocking||active('lullaby')||ajeHere);cradleEl.classList.toggle('crying',baby.state==='cry');
- meter(babyMeter,baby.content/100,holding?null:baby.need?NEEDS[baby.need].icon:null,holding?'на руках':baby.state==='cry'?'плачет!':Math.ceil(baby.content)+'%');place(babyMeter,[P.cradle[0]-3,P.cradle[1]-12.5]);
+ meter(babyMeter,baby.content/100,holding?null:baby.need?NEEDS[baby.need].icon:null,holding?'на руках':baby.state==='cry'?'плачет!':Math.ceil(baby.content)+'%');place(babyMeter,[P.cradle[0]-6,P.cradle[1]-12.5]);
  setRing('baby',baby.state==='cry'?1-(time-baby.cryStart)/baby.patience:null,[P.cradle[0]+13,P.cradle[1]-6]);
  // toddler
  const T=toddler;toddlerEl.hidden=T.state==='held'||(kelin.job&&kelin.job.type==='toddler'&&kelin.job.holding);
  let tf,tsheet='--u-toddler',tframes=4;
  if(T.state==='walk'){tf=0;}else if(T.state==='danger'){tf=2;}else if(T.state==='mischief'){if(T.item){tsheet='--u-toddler2';tframes=5;tf=3;}else tf=0;}else if(T.state==='grandpa'){tf=3;}else{if(T.fun<=15){tf=2;}else{tsheet='--u-toddler2';tframes=5;tf=[0,1,2,4,0][T.variant]||0;if(T.variant===4){tsheet='--u-toddler';tframes=4;tf=1;}}}
- toddlerEl.style.backgroundImage='var('+tsheet+')';toddlerEl.style.backgroundSize=(tframes*100)+'% 100%';spriteAt(toddlerEl,tf,tframes);
- place(toddlerEl,[T.x,T.y]);toddlerEl.style.setProperty('--face',T.state==='walk'||T.state==='mischief'?T.face:1);toddlerEl.style.zIndex=Math.round(T.y*10);toddlerEl.classList.toggle('walking',T.state==='walk'||T.state==='mischief');toddlerEl.classList.toggle('danger',T.state==='danger');toddlerEl.classList.toggle('playing',T.state==='play'||T.state==='grandpa');
+ S(toddlerEl,'backgroundImage','var('+tsheet+')');S(toddlerEl,'backgroundSize',(tframes*100)+'% 100%');spriteAt(toddlerEl,tf,tframes);
+ place(toddlerEl,[T.x,T.y]);V(toddlerEl,'--face',T.state==='walk'||T.state==='mischief'?T.face:1);S(toddlerEl,'zIndex',Math.round(T.y*10));toddlerEl.classList.toggle('walking',T.state==='walk'||T.state==='mischief');toddlerEl.classList.toggle('danger',T.state==='danger');toddlerEl.classList.toggle('playing',T.state==='play'||T.state==='grandpa');
  const kidK=T.state==='play'||T.state==='grandpa'?T.fun/100:T.state==='walk'?1-(time-T.walkStart)/T.walkTotal:T.state==='mischief'?1-(time-T.mischiefStart)/(10*patienceK()):0;
- if(toddlerEl.hidden)toddlerMeter.hidden=true;else{meter(toddlerMeter,kidK,(T.state==='play'&&T.fun<=35)?3:null,T.state==='play'||T.state==='grandpa'?Math.ceil(T.fun)+'%':T.state==='danger'?'опасно!':T.state==='walk'?(T.target==='hearth'?'к огню!':'к двери!'):T.item?'схватил!':'шалит');place(toddlerMeter,[T.x,T.y+5]);toddlerMeter.style.zIndex=950;}
+ if(toddlerEl.hidden)toddlerMeter.hidden=true;else{meter(toddlerMeter,kidK,(T.state==='play'&&T.fun<=35)?3:null,T.state==='play'||T.state==='grandpa'?Math.ceil(T.fun)+'%':T.state==='danger'?'опасно!':T.state==='walk'?(T.target==='hearth'?'к огню!':'к двери!'):T.item?'схватил!':'шалит');place(toddlerMeter,[T.x,T.y+5]);S(toddlerMeter,'zIndex',950);}
  // elders who came to the kids
- {const F=father,show=['toKid','withKid','toBaby','withBaby','back'].includes(F.state);fatherEl.hidden=!show;if(show){const sitting=F.state==='withKid'||F.state==='withBaby';fatherEl.classList.toggle('sitting',sitting);if(sitting)spriteAt(fatherEl,F.state==='withKid'?0:1,3);else spriteAt(fatherEl,1,3);place(fatherEl,[F.x,F.y]);fatherEl.style.zIndex=Math.round(F.y*10);fatherEl.style.setProperty('--face',F.state==='withKid'?-1:sitting?1:(F.face||1));}}
- for(const [who,elm,sit,walk] of [['aje',ajeEl,0,1],['ata',ataEl,2,3]]){const E=elders[who];elm.hidden=E.state==='seat';if(E.state==='seat')continue;spriteAt(elm,E.state==='kids'?sit:walk,4);place(elm,[E.x,E.y]);elm.style.zIndex=Math.round(E.y*10);const back=E.state==='back';elm.style.setProperty('--face',who==='aje'?(back?-1:1):(back?-1:1));}
+ {const F=father,show=['toKid','withKid','toBaby','withBaby','back'].includes(F.state);fatherEl.hidden=!show;if(show){const sitting=F.state==='withKid'||F.state==='withBaby';fatherEl.classList.toggle('sitting',sitting);if(sitting)spriteAt(fatherEl,F.state==='withKid'?0:1,3);else spriteAt(fatherEl,1,3);place(fatherEl,[F.x,F.y]);S(fatherEl,'zIndex',Math.round(F.y*10));V(fatherEl,'--face',F.state==='withKid'?-1:sitting?1:(F.face||1));}}
+ for(const [who,elm,sit,walk] of [['aje',ajeEl,0,1],['ata',ataEl,2,3]]){const E=elders[who];elm.hidden=E.state==='seat';if(E.state==='seat')continue;spriteAt(elm,E.state==='kids'?sit:walk,4);place(elm,[E.x,E.y]);S(elm,'zIndex',Math.round(E.y*10));const back=E.state==='back';V(elm,'--face',who==='aje'?(back?-1:1):(back?-1:1));}
  // hearth
- hearthEl.style.setProperty('--fuel',fire.fuel/100);hearthEl.classList.toggle('out',fire.fuel<=0);hearthEl.classList.toggle('low',fire.fuel>0&&fire.fuel<=35);hearthEl.classList.toggle('ready',kazan.ready);
+ V(hearthEl,'--fuel',fire.fuel/100);hearthEl.classList.toggle('out',fire.fuel<=0);hearthEl.classList.toggle('low',fire.fuel>0&&fire.fuel<=35);hearthEl.classList.toggle('ready',kazan.ready);
  hearthEl.querySelector('.u-fuel b').style.width=fire.fuel+'%';hearthEl.querySelector('.u-cook b').style.width=kazan.cook+'%';
  setRing('food',kazan.ready?1-(time-kazan.readyAt)/kazan.patience:null,[P.hearth[0]+22,P.hearth[1]+15]);
  woodEl.classList.toggle('wanted',fire.fuel<=35);dishEl.hidden=!(kazan.servedUntil>time);kurtEl.hidden=!dishEl.hidden;
@@ -1597,13 +1608,13 @@ function render(){
  meter(cookMeter,kazan.ready?1-(time-kazan.readyAt)/kazan.patience:1-kazan.cook/100,null,kazan.ready?'🍲 готово!':'🍲 '+Math.ceil(100-kazan.cook)+'%');cookMeter.classList.remove('low');cookMeter.classList.toggle('low',kazan.ready);cookMeter.classList.toggle('ready',kazan.ready);place(cookMeter,[P.hearth[0]+22,P.hearth[1]+6]);
  meter(samovarMeter,samovar.water/100,null,'♨ '+Math.floor(samovar.water)+'%');samovarMeter.classList.toggle('low',samovar.water<30);place(samovarMeter,[P.samovar[0]+3,P.samovar[1]+10]);samovarHit.classList.toggle('boiling',samovar.water>=30);
  // seats
- seatEls.forEach((b,i)=>{const s=seats[i];b.hidden=!s||s.away;if(!s||s.away){cupEls[i].hidden=true;return;}const p=PEOPLE[s.who];const face=b.querySelector('.u-face');face.style.backgroundImage='var(--mood'+p.mood+')';spriteAt(face,s.tea<=0?2:s.tea<=35?1:0,3);b.querySelector('small').textContent=p.name;b.classList.toggle('golden',s.tea>0&&s.tea<=35);b.classList.toggle('angry',s.tea<=0&&!s.welcome);b.classList.toggle('selected',!!(kelin.job&&kelin.job.type==='tea'&&kelin.job.seat===i));const cup=cupEls[i];cup.hidden=false;cup.style.setProperty('--lvl',s.tea);cup.classList.toggle('golden',s.tea>0&&s.tea<=35);cup.classList.toggle('angry',s.tea<=0&&!s.welcome);cup.querySelector('em').textContent=s.welcome?'ждёт':s.tea<=0?'💢':Math.ceil(s.tea)+'%';b.setAttribute('aria-label',p.name+': '+Math.ceil(s.tea)+'% чая. Налить');});
+ seatEls.forEach((b,i)=>{const s=seats[i];b.hidden=!s||s.away;if(!s||s.away){cupEls[i].hidden=true;return;}const p=PEOPLE[s.who];const face=b.querySelector('.u-face');S(face,'backgroundImage','var(--mood'+p.mood+')');spriteAt(face,s.tea<=0?2:s.tea<=35?1:0,3);b.querySelector('small').textContent=p.name;b.classList.toggle('golden',s.tea>0&&s.tea<=35);b.classList.toggle('angry',s.tea<=0&&!s.welcome);b.classList.toggle('selected',!!(kelin.job&&kelin.job.type==='tea'&&kelin.job.seat===i));const cup=cupEls[i];cup.hidden=false;V(cup,'--lvl',s.tea);cup.classList.toggle('golden',s.tea>0&&s.tea<=35);cup.classList.toggle('angry',s.tea<=0&&!s.welcome);cup.querySelector('em').textContent=s.welcome?'ждёт':s.tea<=0?'💢':Math.ceil(s.tea)+'%';b.setAttribute('aria-label',p.name+': '+Math.ceil(s.tea)+'% чая. Налить');});
  // door: guest, Жаным, the dog
  guestEl.hidden=!door;doorEl.classList.toggle('knock',!!door);
- if(door){const p=PEOPLE[door.who];const f=guestEl.querySelector('.u-face');f.style.backgroundImage='var(--mood'+p.mood+')';spriteAt(f,time-door.since>door.total*.6?2:1,3);guestEl.querySelector('small').textContent=p.name;place(guestEl,[P.guestWait[0]+7,P.guestWait[1]]);}
+ if(door){const p=PEOPLE[door.who];const f=guestEl.querySelector('.u-face');S(f,'backgroundImage','var(--mood'+p.mood+')');spriteAt(f,time-door.since>door.total*.6?2:1,3);guestEl.querySelector('small').textContent=p.name;place(guestEl,[P.guestWait[0]+7,P.guestWait[1]]);}
  setRing('door',door?1-(time-door.since)/door.total:null,[P.guestWait[0]+19,P.guestWait[1]-14]);
  const hs=husband.state;husbandEl.hidden=!(hs==='waiting'||hs==='leaving'||hs==='coming');
- if(!husbandEl.hidden){spriteAt(husbandEl,hs==='waiting'?0:hs==='leaving'?1:2,3);place(husbandEl,[husband.x,husband.y]);husbandEl.style.zIndex=Math.round(husband.y*10);husbandEl.style.setProperty('--face',hs==='coming'?(husband.face||1):1);husbandEl.classList.toggle('fading',hs==='leaving');}
+ if(!husbandEl.hidden){spriteAt(husbandEl,hs==='waiting'?0:hs==='leaving'?1:2,3);place(husbandEl,[husband.x,husband.y]);S(husbandEl,'zIndex',Math.round(husband.y*10));V(husbandEl,'--face',hs==='coming'?(husband.face||1):1);husbandEl.classList.toggle('fading',hs==='leaving');}
  setRing('husband',hs==='waiting'?1-(time-husband.since)/husband.total:null,[husband.x+9,husband.y-24]);{const z=seats[4];setRing('welcome',z&&z.welcome?1-(time-z.welcome.since)/z.welcome.total:null,[SEATS[4].x-9,SEATS[4].y-4]);zNeed.hidden=!(z&&z.wantsFood&&!z.away);}
  dogEl.hidden=dog.state==='away';if(!dogEl.hidden){spriteAt(dogEl,{waiting:0,eating:2,resting:3}[dog.state]||1,4);place(dogEl,P.dog);}
  bowlEl.hidden=dog.state!=='eating';place(bowlEl,[P.dog[0]-6,P.dog[1]]);
@@ -1615,7 +1626,7 @@ function render(){
  gainEl.hidden=time>=gainUntil||!playing;
  $('.drop').hidden=time>=dropUntil||!playing;
 }
-function setRing(key,k,[x,y]){const r=ring(key);if(k===null||state!=='playing'&&state!=='paused'&&state!=='submenu'&&state!=='tour'){r.hidden=true;return;}r.hidden=false;r.style.setProperty('--k',clamp(k,0,1));r.classList.toggle('late',k<.5);place(r,[x,y]);r.style.zIndex=900;}
+function setRing(key,k,[x,y]){const r=ring(key);if(k===null||state!=='playing'&&state!=='paused'&&state!=='submenu'&&state!=='tour'){r.hidden=true;return;}r.hidden=false;V(r,'--k',clamp(k,0,1));r.classList.toggle('late',k<.5);place(r,[x,y]);S(r,'zIndex',900);}
 const POSES={walk:['--kelin-frames',0,3,138/210],stand:['--kelin-frames',0,3,138/210],serve:['--kelin-serve',1,4,108/210],rock:['--u-chores',0,4,170/210],'carry-kid':['--u-chores',1,4,170/210],'carry-wood':['--u-chores',2,4,170/210],greet:['--u-chores',3,4,170/210],tray:['--u-tabak',0,2,170/210],nurse:['--u-kelin2',0,4,170/210],change:['--u-kelin2',1,4,170/210],give:['--u-kelin2',2,4,170/210],feed:['--u-kelin2',3,4,170/210]};
 function renderKelin(){
  let [img,frame,frames,aspect]=POSES[kelin.pose]||POSES.stand;
@@ -1623,10 +1634,10 @@ function renderKelin(){
  if(kelin.pose==='walk'&&kelin.vert&&moving){img='--kelin-vertical';frames=4;aspect=106/210;frame=(kelin.dir==='down'?0:2)+Math.floor(time*7)%2;}
  if(kelin.pose==='serve'&&kelin.job&&kelin.actTotal){const t=kelin.act/kelin.actTotal;frame=t<.2?0:t<.7?1:t<.9?2:3;}
  if(kelin.pose==='tray')frame=kelin.act>0?1:0;
- const body=kelinEl.querySelector('.u-body');body.style.backgroundImage='var('+img+')';body.style.backgroundSize=(frames*100)+'% 100%';spriteAt(body,frame,frames);
- kelinEl.style.setProperty('--aspect',aspect);kelinEl.style.setProperty('--face',kelin.pose==='walk'&&kelin.vert&&moving?1:kelin.face);
+ const body=kelinEl.querySelector('.u-body');S(body,'backgroundImage','var('+img+')');S(body,'backgroundSize',(frames*100)+'% 100%');spriteAt(body,frame,frames);
+ V(kelinEl,'--aspect',aspect);V(kelinEl,'--face',kelin.pose==='walk'&&kelin.vert&&moving?1:kelin.face);
  kelinEl.classList.toggle('moving',!!moving);kelinEl.classList.toggle('turbo',active('turbo'));
- place(kelinEl,[kelin.x,kelin.y]);kelinEl.style.zIndex=Math.round(kelin.y*10)+1;
+ place(kelinEl,[kelin.x,kelin.y]);S(kelinEl,'zIndex',Math.round(kelin.y*10)+1);
 
  const pot=kelinEl.querySelector('.u-pot');pot.textContent='🫖'+kelin.teapot;pot.classList.toggle('empty',kelin.teapot<=0);
 }
@@ -1634,8 +1645,9 @@ function renderKelin(){
 const PIC={above:210/1128.6,below:(1672-210-1128.6)/1128.6};
 // The yard box is the square of game coordinates; the picture goes on below it (grass and the path), so the whole picture
 // has the proportion VIS. It is scaled to fill the play area, cropping the sides a little on tall phones.
-function measure(){const w=arena.clientWidth||390,h=(arena.clientHeight||480)-38,key=w+'x'+h;if(yard.dataset.side===key)return;yard.dataset.side=key;const ABOVE=PIC.above,BELOW=PIC.below;let yw=Math.max(w,h/(ABOVE+1+BELOW));if(yw>h*1.05)yw=h*1.05;yw=Math.min(yw,w*1.15);const top=clamp((h-yw)/2,h-(1+BELOW)*yw,ABOVE*yw);yard.style.width=yw+'px';yard.style.height=yw+'px';yard.style.marginTop=top+'px';yard.style.marginLeft=((w-yw)/2)+'px';yard.style.setProperty('--u',yw/480);}
-addEventListener('resize',()=>{yard.dataset.side='';});
+let arenaSize=null;if(window.ResizeObserver)new ResizeObserver(()=>{arenaSize=null;}).observe(arena);
+function measure(){if(!arenaSize)arenaSize=[arena.clientWidth||390,arena.clientHeight||480];const w=arenaSize[0],h=arenaSize[1]-8,key=w+'x'+h;if(yard.dataset.side===key)return;yard.dataset.side=key;const ABOVE=PIC.above,BELOW=PIC.below;const ZOOM=1.22;let yw=Math.max(w*ZOOM,h/(ABOVE+1+BELOW));if(yw>h*1.05)yw=h*1.05;yw=Math.min(yw,w*1.3);const top=clamp((h-yw)/2,h-(1+BELOW)*yw,ABOVE*yw);S(yard,'width',yw+'px');S(yard,'height',yw+'px');S(yard,'marginTop',top+'px');S(yard,'marginLeft',((w-yw)/2)+'px');V(yard,'--u',yw/480);}
+addEventListener('resize',()=>{yard.dataset.side='';arenaSize=null;});
 {const inTelegram=!!(window.TelegramWebviewProxy||window.Telegram||/Telegram/i.test(navigator.userAgent));const probe=document.createElement('div');probe.style.cssText='position:fixed;top:0;height:env(safe-area-inset-top);visibility:hidden';document.body.append(probe);const top=probe.offsetHeight;probe.remove();if(inTelegram&&top>20)root.classList.add('tg-full');}
 
 // ---------- Thumb buttons (two columns under the thumbs: kids on the left, hearth and tea on the right)
@@ -1679,7 +1691,7 @@ function renderMenuButtons(){renderGoal();renderBoostBar();settingsMenuButton.di
 const gameMenu=document.createElement('dialog');gameMenu.className='game-menu';gameMenu.setAttribute('aria-labelledby','game-menu-title');
 gameMenu.innerHTML='<h2 id="game-menu-title">Настройки</h2><p class="menu-caption">Игра на паузе. Настрой музыку и звуковые эффекты.</p>';
 const settingsPage=document.createElement('div');const soundSettings=$('.sound-settings');soundSettings.open=true;settingsPage.append($('.sound-toggle'),$('[data-sound-state]'),soundSettings,$('.footer'));
-{const rb=document.createElement('button');rb.type='button';rb.className='secondary';rb.style.width='100%';rb.textContent='📖 Правила игры';rb.onclick=()=>openRules();settingsPage.append(rb);const bk=document.createElement('button');bk.type='button';bk.className='secondary';bk.style.width='100%';bk.textContent='🗣 Сөздік — фразы и перевод';bk.onclick=()=>openBook();settingsPage.append(bk);}
+{const rb=document.createElement('button');rb.type='button';rb.className='secondary';S(rb,'width','100%');rb.textContent='📖 Правила игры';rb.onclick=()=>openRules();settingsPage.append(rb);const bk=document.createElement('button');bk.type='button';bk.className='secondary';S(bk,'width','100%');bk.textContent='🗣 Сөздік — фразы и перевод';bk.onclick=()=>openBook();settingsPage.append(bk);}
 {const row=document.createElement('div');row.className='menu-actions';for(const [t,fn] of [['↺ Начать игру заново',()=>reset()],['⌂ Главное меню',()=>mainMenu()]]){const x=document.createElement('button');x.type='button';x.className='secondary';x.textContent=t;x.onclick=()=>leaveTo(fn);row.append(x);}settingsPage.append(row);}
 const menuClose=document.createElement('button');menuClose.type='button';menuClose.className='menu-close';menuClose.textContent='Продолжить игру';
 gameMenu.append(settingsPage,menuClose);root.append(gameMenu);
@@ -1704,9 +1716,9 @@ let tourAt=0;const coach=document.createElement('div');coach.className='coach';c
 function startTour(){state='tour';tourAt=0;pause.disabled=true;render();requestAnimationFrame(showTourStep);}
 function showTourStep(){const [sel,title,text]=tourSteps[tourAt];coach.hidden=false;{const c=coach.querySelector('.coach-card');c.style.animation='none';void c.offsetWidth;c.style.animation='';}coach.querySelector('small').textContent='Әже советует · '+(tourAt+1)+' из '+tourSteps.length;coach.querySelector('b').textContent=title;coach.querySelector('p').textContent=text;coach.querySelector('.coach-next').textContent=tourAt===tourSteps.length-1?'Начать игру':'Дальше';
  const spot=coach.querySelector('.coach-spot'),card=coach.querySelector('.coach-card'),box=root.getBoundingClientRect(),target=sel&&root.querySelector(sel);
- if(target&&!target.hidden){const r=target.getBoundingClientRect(),pad=6;spot.hidden=false;spot.style.left=(r.left-box.left-pad)+'px';spot.style.top=(r.top-box.top-pad)+'px';spot.style.width=(r.width+pad*2)+'px';spot.style.height=(r.height+pad*2)+'px';placeCard(card,box,r.top-box.top,r.bottom-box.top);}else{spot.hidden=true;placeCard(card,box,null,null);}
+ if(target&&!target.hidden){const r=target.getBoundingClientRect(),pad=6;spot.hidden=false;S(spot,'left',(r.left-box.left-pad)+'px');S(spot,'top',(r.top-box.top-pad)+'px');S(spot,'width',(r.width+pad*2)+'px');S(spot,'height',(r.height+pad*2)+'px');placeCard(card,box,r.top-box.top,r.bottom-box.top);}else{spot.hidden=true;placeCard(card,box,null,null);}
  sound.event('select');}
-function placeCard(card,box,tTop,tBottom){const m=12,H=box.height;card.style.bottom='auto';card.style.maxHeight=(H-2*m)+'px';card.style.top='0px';const h=card.offsetHeight;let top;if(tTop===null)top=(H-h)/2;else if(tBottom+14+h<=H-m)top=tBottom+14;else if(tTop-14-h>=m)top=tTop-14-h;else top=H-m-h;card.style.top=Math.max(m,Math.min(H-m-h,top))+'px';}
+function placeCard(card,box,tTop,tBottom){const m=12,H=box.height;card.style.bottom='auto';card.style.maxHeight=(H-2*m)+'px';S(card,'top','0px');const h=card.offsetHeight;let top;if(tTop===null)top=(H-h)/2;else if(tBottom+14+h<=H-m)top=tBottom+14;else if(tTop-14-h>=m)top=tTop-14-h;else top=H-m-h;S(card,'top',Math.max(m,Math.min(H-m-h,top))+'px');}
 function endTour(){coach.hidden=true;try{localStorage.setItem(TOUR_KEY,'done');}catch(e){}pause.disabled=false;beginCountdown();}
 coach.querySelector('.coach-next').onclick=()=>{if(tourAt<tourSteps.length-1){tourAt++;showTourStep();}else endTour();};
 coach.querySelector('.coach-skip').onclick=endTour;
@@ -1746,23 +1758,23 @@ const bonusField=document.createElement('div');bonusField.className='bonus-field
 const bonusKelin=bonusField.querySelector('.bonus-kelin'),bonusStage=bonusField.querySelector('.bonus-stage');
 bonusField.addEventListener('pointerdown',e=>{if(state!=='bonus')return;e.preventDefault();const r=bonusField.getBoundingClientRect(),x=(e.clientX-r.left)/r.width,y=(e.clientY-r.top)/r.height;catchLane=(x>=.5?1:0)+(y>=.375?2:0);sound.event('select');});
 const laneNames=['Слева сверху','Справа сверху','Слева снизу','Справа снизу'];
-const slots=[];for(let lane=0;lane<4;lane++){const slot=document.createElement('div');slot.className='catch-slot';slot.textContent='◡';slot.style.left=(lane%2?59.5:40.5)+'%';slot.style.top=(lane<2?35.5:50.5)+'%';bonusStage.append(slot);slots.push(slot);}
+const slots=[];for(let lane=0;lane<4;lane++){const slot=document.createElement('div');slot.className='catch-slot';slot.textContent='◡';S(slot,'left',(lane%2?59.5:40.5)+'%');S(slot,'top',(lane<2?35.5:50.5)+'%');bonusStage.append(slot);slots.push(slot);}
 let bonusLevel=0,bonusTime=0,bonusSpawn=0,bonusCaught=0,bonusDropped=0,bonusBoosters=0,bonusExtra=0,bonusItems=[],catchLane=0,debris=[];
 function clearBonus(){bonusItems.forEach(c=>c.el.remove());bonusItems=[];debris.forEach(e=>e.remove());debris=[];}
 function bonusTune(){const L=Math.max(1,bonusLevel);return {roll:Math.max(1,2.15-.35*(L-1)),every:Math.max(.5,1.1-.18*(L-1)),pair:L>=3?Math.min(.6,.3+.1*(L-3)):0,boost:Math.min(.22,.1+.05*(L-1))};}
 function startBonus(){bonusLevel++;bonusTime=0;bonusSpawn=.7;bonusCaught=0;bonusDropped=0;bonusBoosters=0;bonusExtra=0;catchLane=0;clearBonus();bonusField.hidden=false;overlay.hidden=true;state='bonus';say('Нажимай на желоб, куда катится баурсак');sound.ensure();sound.event('start');}
 function spawnBonus(lane){const tune=bonusTune(),boost=Math.random()<tune.boost,e=document.createElement('span');const ids=Object.keys(config);const id=boost?pick(ids):null;e.className='falling-cup baursak'+(boost?' falling-boost':'');if(boost){const [img,n,of]=config[id].icon;e.style.background='var('+img+') '+(n*100/(of-1))+'% 0/'+(of*100)+'% 100% no-repeat';}bonusStage.append(e);bonusItems.push({lane,age:0,el:e,roll:tune.roll,boost:id});}
-function popCatch(lane,label){const pop=document.createElement('span');pop.className='catch-pop';pop.textContent=label||'+50';pop.style.left=(lane%2?59.5:40.5)+'%';pop.style.top=(lane<2?35.5:50.5)+'%';bonusStage.append(pop);setTimeout(()=>pop.remove(),800);}
+function popCatch(lane,label){const pop=document.createElement('span');pop.className='catch-pop';pop.textContent=label||'+50';S(pop,'left',(lane%2?59.5:40.5)+'%');S(pop,'top',(lane<2?35.5:50.5)+'%');bonusStage.append(pop);setTimeout(()=>pop.remove(),800);}
 function catchBoost(id){const full=(inventory[id]||0)>=STOCK_CAP;if(full){score+=150;bonusExtra+=150;}else{inventory[id]=(inventory[id]||0)+1;newUntil[id]=time+5;bonusBoosters++;}sound.event('reward');}
 function tickBonus(dt){bonusTime+=dt;bonusSpawn-=dt;if(bonusSpawn<=0&&bonusTime<18){const tune=bonusTune(),lane=Math.floor(Math.random()*4);spawnBonus(lane);if(Math.random()<tune.pair)spawnBonus((lane+1+Math.floor(Math.random()*3))%4);bonusSpawn=tune.every*(.85+Math.random()*.3);}
  for(const c of bonusItems){c.age+=dt;const right=c.lane%2,low=c.lane>=2;
-  if(!c.falling){const p=Math.min(1,c.age/c.roll);c.x=(right?82:18)+(right?-21.5:21.5)*p;c.y=(low?40.5:23)+(low?10:12.5)*p;c.el.style.setProperty('--spin',((right?-1:1)*c.age*360)+'deg');
+  if(!c.falling){const p=Math.min(1,c.age/c.roll);c.x=(right?82:18)+(right?-21.5:21.5)*p;c.y=(low?40.5:23)+(low?10:12.5)*p;c.V(el,'--spin',((right?-1:1)*c.age*360)+'deg');
    if(c.age>=c.roll){if(c.lane===catchLane){c.done=true;c.el.remove();if(c.boost){catchBoost(c.boost);popCatch(c.lane,'🎁');}else{bonusCaught++;score+=50;sound.event('cup');popCatch(c.lane);if(bonusCaught%5===0)reward();}}else if(c.boost){c.done=true;c.el.classList.add('lost');setTimeout(()=>c.el.remove(),400);}else{c.falling=true;c.vx=right?5:-5;c.vy=0;}}}
-  else if(!c.landed){c.vy+=170*dt;c.x+=c.vx*dt;c.y+=c.vy*dt;c.el.style.setProperty('--spin',((right?-1:1)*(40+c.age*420))+'deg');if(c.y>=64){c.y=64;c.landed=true;c.landedAt=c.age;bonusDropped++;sound.event('break');c.el.classList.add('dropped');}}
+  else if(!c.landed){c.vy+=170*dt;c.x+=c.vx*dt;c.y+=c.vy*dt;c.V(el,'--spin',((right?-1:1)*(40+c.age*420))+'deg');if(c.y>=64){c.y=64;c.landed=true;c.landedAt=c.age;bonusDropped++;sound.event('break');c.el.classList.add('dropped');}}
   else if(c.age-c.landedAt>.5){c.done=true;debris.push(c.el);if(debris.length>16)debris.shift().remove();}
-  c.el.style.left=c.x+'%';c.el.style.top=c.y+'%';}
+  c.S(el,'left',c.x+'%');c.S(el,'top',c.y+'%');}
  bonusItems=bonusItems.filter(c=>!c.done);slots.forEach((slot,i)=>slot.classList.toggle('active',catchLane===i));
- const trayFrame=[0,2,1,3][catchLane],trayGrip=[[19,70],[24,-8],[-21,67],[-27,-8]][trayFrame];bonusKelin.style.setProperty('--tray-pos',(trayFrame*100/3)+'% 0');{const ks=(bonusKelin.offsetWidth||96)/96;bonusKelin.style.left='calc('+(catchLane%2?59.5:40.5)+'% + '+trayGrip[0]*ks+'px)';bonusKelin.style.top='calc('+(catchLane<2?35.5:50.5)+'% + '+trayGrip[1]*ks+'px)';}
+ const trayFrame=[0,2,1,3][catchLane],trayGrip=[[19,70],[24,-8],[-21,67],[-27,-8]][trayFrame];V(bonusKelin,'--tray-pos',(trayFrame*100/3)+'% 0');{const ks=(bonusKelin.offsetWidth||96)/96;S(bonusKelin,'left','calc('+(catchLane%2?59.5:40.5)+'% + '+trayGrip[0]*ks+'px)');S(bonusKelin,'top','calc('+(catchLane<2?35.5:50.5)+'% + '+trayGrip[1]*ks+'px)');}
  bonusField.querySelector('.bonus-heading').firstChild.textContent='Переменка '+bonusLevel+' · лови баурсаки! ';bonusField.querySelector('small').textContent=Math.max(0,Math.ceil(20-bonusTime))+' с · поймано '+bonusCaught+' · упало '+bonusDropped;
  if(bonusTime>=20){state='bonus-result';show('Баурсаки на столе!','Поймано: '+bonusCaught+', упало: '+bonusDropped+'. +'+fmt(bonusCaught*50+bonusExtra)+' баллов, бустеров: '+bonusBoosters+'. Впереди новый день: утро (Таң).','Раунд '+(round+1),resumeRound,null,null,'kelin:2');}}
 
@@ -1774,14 +1786,14 @@ const subtitle=document.createElement('span');subtitle.className='scene-subtitle
 let introPhase='splash',introIndex=0,introElapsed=0;
 const DISCLAIMER='Игра о казахском быте и традициях семьи: как келін ведёт дом в юрте, растит детей и встречает гостей.\n\nМы с уважением относимся к труду каждого, кто заботится о доме и детях, — мам, пап, бабушек и дедушек — и показываем традицию как часть культурного наследия, а не как правило о том, какой должна быть женщина.\n\nИгра создана с добрыми намерениями: показать, сколько невидимой заботы стоит за одним обычным днём семьи — и что хозяйство в доме общее.';
 const story=[{title:'Таң атты',text:'Утро. Солнце заглянуло в шаңырақ. Малыш уже плачет в бесіке, карапуз тянет за подол, самовар закипает.',line:'«Қазір, балапаным! Сейчас!»'},{title:'Түс — самый разгар',text:'Казан бурлит, гости у порога, а карапуз уже топает к двери. Әже всё видит и подсказывает.',line:'«Қош келдіңіздер! Проходите!»'},{title:'Кеш — все вместе',text:'Вечером вся семья за дастарханом: Жаным держит малыша, Әже благословляет келін. Помоги ей прожить этот день — и всё успеть!',line:'«Бәріне үлгердім!»'}];
-function paintIntro(){const intro=$('.intro');{const art=intro.querySelector('.intro-art');if(introPhase==='story'&&art.dataset.panel!==String(introIndex)){art.dataset.panel=introIndex;art.classList.remove('panel-in');void art.offsetWidth;art.classList.add('panel-in');intro.style.setProperty('--shot-origin',['40% 55%','55% 45%','50% 40%'][introIndex]);intro.style.setProperty('--tilt',['-1.4deg','1.2deg','-0.8deg'][introIndex]);sound.event('select');}if(introPhase!=='story')art.dataset.panel='';}
- intro.classList.toggle('story',introPhase==='story');intro.style.setProperty('--shot-position',(introIndex*50)+'%');intro.style.setProperty('--shot-scale','1.01');intro.style.setProperty('--shot-opacity','1');$('.scene-subtitle').textContent=story[introIndex].line;intro.classList.toggle('splash',introPhase==='splash');intro.classList.toggle('presenting',introPhase==='presents');root.classList.toggle('booting',introPhase==='splash'||introPhase==='presents');intro.classList.toggle('menu',introPhase==='menu');intro.classList.toggle('disclaimer',introPhase==='disclaimer');
+function paintIntro(){const intro=$('.intro');{const art=intro.querySelector('.intro-art');if(introPhase==='story'&&art.dataset.panel!==String(introIndex)){art.dataset.panel=introIndex;art.classList.remove('panel-in');void art.offsetWidth;art.classList.add('panel-in');V(intro,'--shot-origin',['40% 55%','55% 45%','50% 40%'][introIndex]);V(intro,'--tilt',['-1.4deg','1.2deg','-0.8deg'][introIndex]);sound.event('select');}if(introPhase!=='story')art.dataset.panel='';}
+ intro.classList.toggle('story',introPhase==='story');V(intro,'--shot-position',(introIndex*50)+'%');V(intro,'--shot-scale','1.01');V(intro,'--shot-opacity','1');$('.scene-subtitle').textContent=story[introIndex].line;intro.classList.toggle('splash',introPhase==='splash');intro.classList.toggle('presenting',introPhase==='presents');root.classList.toggle('booting',introPhase==='splash'||introPhase==='presents');intro.classList.toggle('menu',introPhase==='menu');intro.classList.toggle('disclaimer',introPhase==='disclaimer');
  const menu=introPhase==='menu',disc=introPhase==='disclaimer';$('[data-intro-title]').textContent=disc?'Об этой игре':menu?'КЕЛІН':story[introIndex].title;$('.intro-copy').textContent=disc?DISCLAIMER:menu?'Один день в юрте: малыш, карапуз, казан, чай и гости. Всё успеть и никого не обидеть — вот искусство келін.':story[introIndex].text;$('.intro-progress').textContent=disc?'Мы стремимся следовать принципам Конвенции ООН о ликвидации всех форм дискриминации в отношении женщин (CEDAW) и рекомендациям ЮНЕСКО о гендерном равенстве в видеоиграх.':menu?'ГОТОВЫ К НОВОМУ ДНЮ?':story.map((_,i)=>i===introIndex?'●':'○').join(' ');$('.intro-next').textContent=disc?'Понятно':menu?'Начать игру':introIndex===2?'К игре':'Дальше';}
 function mainMenu(){sound.ensure();if(gameMenu.open)gameMenu.close();bonusField.hidden=true;clearBonus();state='intro';introPhase='menu';introElapsed=0;sound.stopMusic();$('.intro').hidden=false;root.classList.add('intro-only');overlay.hidden=true;coach.hidden=true;paintIntro();}
 function nextIntro(){sound.ensure();if(introPhase==='menu'){openModeChoice();return;}if(introPhase==='disclaimer'){introPhase='story';introIndex=0;introElapsed=0;paintIntro();return;}if(introPhase==='splash'||introPhase==='presents'){introPhase='disclaimer';introIndex=0;}else if(introIndex<2){introIndex++;}else{mainMenu();return;}introElapsed=0;paintIntro();}
 function advanceIntro(dt){if(document.hidden||introPhase==='menu')return;introElapsed+=dt;const intro=$('.intro');
- if(introPhase==='story'){intro.style.setProperty('--shot-scale',String(1.01+.045*Math.min(1,introElapsed/7)));intro.style.setProperty('--shot-opacity',String(Math.min(1,.5+introElapsed*1.5)));}
- if(introPhase==='splash'||introPhase==='presents'){const length=introPhase==='splash'?4.4:2.2;const opacity=Math.max(0,Math.min(1,(introElapsed-.2)/.65,(length-introElapsed)/.55));intro.style.setProperty('--boot-opacity',String(opacity));intro.style.setProperty('--assemble',String(Math.max(0,1-introElapsed/1.1)));intro.style.setProperty('--settle',String(Math.min(1,introElapsed/1.5)));intro.style.setProperty('--shine',String(Math.min(100,introElapsed/3*100)));intro.style.setProperty('--flare',String(Math.max(0,1-Math.abs(introElapsed-1.4)/.3)));intro.style.setProperty('--boot-scale',String(.97+.03*Math.min(1,introElapsed/1.2)));if(introElapsed>=length){if(introPhase==='splash'){introPhase='presents';introElapsed=0;intro.style.setProperty('--boot-opacity','0');paintIntro();}else{introPhase='disclaimer';introIndex=0;introElapsed=0;paintIntro();}}}
+ if(introPhase==='story'){V(intro,'--shot-scale',String(1.01+.045*Math.min(1,introElapsed/7)));V(intro,'--shot-opacity',String(Math.min(1,.5+introElapsed*1.5)));}
+ if(introPhase==='splash'||introPhase==='presents'){const length=introPhase==='splash'?4.4:2.2;const opacity=Math.max(0,Math.min(1,(introElapsed-.2)/.65,(length-introElapsed)/.55));V(intro,'--boot-opacity',String(opacity));V(intro,'--assemble',String(Math.max(0,1-introElapsed/1.1)));V(intro,'--settle',String(Math.min(1,introElapsed/1.5)));V(intro,'--shine',String(Math.min(100,introElapsed/3*100)));V(intro,'--flare',String(Math.max(0,1-Math.abs(introElapsed-1.4)/.3)));V(intro,'--boot-scale',String(.97+.03*Math.min(1,introElapsed/1.2)));if(introElapsed>=length){if(introPhase==='splash'){introPhase='presents';introElapsed=0;V(intro,'--boot-opacity','0');paintIntro();}else{introPhase='disclaimer';introIndex=0;introElapsed=0;paintIntro();}}}
  else if(introPhase==='story'&&introElapsed>=7){if(introIndex<2){introIndex++;introElapsed=0;paintIntro();}else mainMenu();}}
 {const logo=$('.studio-logo'),d1=document.createElement('span'),d3=document.createElement('span'),games=document.createElement('small');d1.className='digit';d3.className='digit';d1.textContent='1';d3.textContent='3';games.textContent='TH DEV STUDIO';const emblem=document.createElement('i');emblem.className='studio-emblem';emblem.setAttribute('aria-hidden','true');logo.replaceChildren(emblem,d1,d3,games);}
 {const b=document.createElement('button');b.type='button';b.className='boot-sound';b.textContent='♫ Со звуком';b.onclick=()=>{introPhase='splash';introElapsed=0;$('.intro').style.setProperty('--boot-opacity','0');sound.hush();sound.brand();paintIntro();};$('.intro').append(b);}
