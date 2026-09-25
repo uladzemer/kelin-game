@@ -1768,11 +1768,11 @@ function popCatch(lane,label){const pop=document.createElement('span');pop.class
 function catchBoost(id){const full=(inventory[id]||0)>=STOCK_CAP;if(full){score+=150;bonusExtra+=150;}else{inventory[id]=(inventory[id]||0)+1;newUntil[id]=time+5;bonusBoosters++;}sound.event('reward');}
 function tickBonus(dt){bonusTime+=dt;bonusSpawn-=dt;if(bonusSpawn<=0&&bonusTime<18){const tune=bonusTune(),lane=Math.floor(Math.random()*4);spawnBonus(lane);if(Math.random()<tune.pair)spawnBonus((lane+1+Math.floor(Math.random()*3))%4);bonusSpawn=tune.every*(.85+Math.random()*.3);}
  for(const c of bonusItems){c.age+=dt;const right=c.lane%2,low=c.lane>=2;
-  if(!c.falling){const p=Math.min(1,c.age/c.roll);c.x=(right?82:18)+(right?-21.5:21.5)*p;c.y=(low?40.5:23)+(low?10:12.5)*p;c.V(el,'--spin',((right?-1:1)*c.age*360)+'deg');
+  if(!c.falling){const p=Math.min(1,c.age/c.roll);c.x=(right?82:18)+(right?-21.5:21.5)*p;c.y=(low?40.5:23)+(low?10:12.5)*p;V(c.el,'--spin',((right?-1:1)*c.age*360)+'deg');
    if(c.age>=c.roll){if(c.lane===catchLane){c.done=true;c.el.remove();if(c.boost){catchBoost(c.boost);popCatch(c.lane,'🎁');}else{bonusCaught++;score+=50;sound.event('cup');popCatch(c.lane);if(bonusCaught%5===0)reward();}}else if(c.boost){c.done=true;c.el.classList.add('lost');setTimeout(()=>c.el.remove(),400);}else{c.falling=true;c.vx=right?5:-5;c.vy=0;}}}
-  else if(!c.landed){c.vy+=170*dt;c.x+=c.vx*dt;c.y+=c.vy*dt;c.V(el,'--spin',((right?-1:1)*(40+c.age*420))+'deg');if(c.y>=64){c.y=64;c.landed=true;c.landedAt=c.age;bonusDropped++;sound.event('break');c.el.classList.add('dropped');}}
+  else if(!c.landed){c.vy+=170*dt;c.x+=c.vx*dt;c.y+=c.vy*dt;V(c.el,'--spin',((right?-1:1)*(40+c.age*420))+'deg');if(c.y>=64){c.y=64;c.landed=true;c.landedAt=c.age;bonusDropped++;sound.event('break');c.el.classList.add('dropped');}}
   else if(c.age-c.landedAt>.5){c.done=true;debris.push(c.el);if(debris.length>16)debris.shift().remove();}
-  c.S(el,'left',c.x+'%');c.S(el,'top',c.y+'%');}
+  S(c.el,'left',c.x+'%');S(c.el,'top',c.y+'%');}
  bonusItems=bonusItems.filter(c=>!c.done);slots.forEach((slot,i)=>slot.classList.toggle('active',catchLane===i));
  const trayFrame=[0,2,1,3][catchLane],trayGrip=[[19,70],[24,-8],[-21,67],[-27,-8]][trayFrame];V(bonusKelin,'--tray-pos',(trayFrame*100/3)+'% 0');{const ks=(bonusKelin.offsetWidth||96)/96;S(bonusKelin,'left','calc('+(catchLane%2?59.5:40.5)+'% + '+trayGrip[0]*ks+'px)');S(bonusKelin,'top','calc('+(catchLane<2?35.5:50.5)+'% + '+trayGrip[1]*ks+'px)');}
  bonusField.querySelector('.bonus-heading').firstChild.textContent='Переменка '+bonusLevel+' · лови баурсаки! ';bonusField.querySelector('small').textContent=Math.max(0,Math.ceil(20-bonusTime))+' с · поймано '+bonusCaught+' · упало '+bonusDropped;
