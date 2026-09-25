@@ -957,6 +957,20 @@ html,body{margin:0!important;padding:0!important;background:#120c08!important;ov
 
 /* v16: real horse sprites outside the yurt (graze, chew, swish the tail) */
 #kelin-game .u-horse{width:19%!important;height:auto!important;aspect-ratio:190/150;transform:translate(-50%,-100%)!important;animation:none!important;-webkit-mask-image:none!important;mask-image:none!important;background-image:var(--u-horses)!important;background-size:600% 100%!important;background-repeat:no-repeat!important;filter:drop-shadow(0 4px 3px #0007);pointer-events:none}
+
+/* v17: a bigger field — compact controls in three columns, a slimmer booster bar; the hearth is tapped only on the fire and kazan */
+#kelin-game .thumb-controls,#kelin-game.many-guests .thumb-controls{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:5px 6px!important;padding-block:4px 6px!important}
+#kelin-game .u-thumb{min-height:40px!important;height:40px;padding:3px 6px!important;display:grid!important;grid-template-columns:auto 1fr;grid-template-rows:auto auto;column-gap:5px;align-items:center;text-align:left}
+#kelin-game .u-thumb .thumb-face{--s:26px;grid-row:1/3;width:26px;height:26px}
+#kelin-game .u-thumb strong{font-size:12px!important;line-height:1.1;margin:0}
+#kelin-game .u-thumb small{font-size:10px!important;line-height:1.1;margin:0!important;white-space:nowrap}
+#kelin-game .u-thumb .thumb-meter{left:6px!important;right:6px!important;bottom:1px!important;height:2px}
+#kelin-game .boost-bar,#kelin-game .boost-bar.empty{height:44px!important;padding-block:3px!important}
+#kelin-game .boost-bar .bb{flex:0 0 36px!important;width:36px;height:36px!important;max-width:36px}
+#kelin-game .boost-hint{font-size:11px}
+#kelin-game .u-hearth{width:17%!important}
+#kelin-game .u-seat{z-index:700!important}
+#kelin-game.bonus-on .thumb-controls{grid-template-columns:1fr 1fr!important}
 </style>
 <section class="intro splash" aria-label="Вступление и главное меню"><div class="intro-top"><span>13TH DEV STUDIO</span><button type="button" class="intro-skip">Пропустить</button></div><div class="studio-logo">13<small>GAMES</small></div><div class="intro-art" aria-hidden="true"><div class="intro-person"></div><div class="intro-person"></div><div class="intro-person"></div><div class="intro-person"></div><div class="intro-kelin"></div></div><h1 data-intro-title>КЕЛІН</h1><p class="intro-copy"></p><div class="intro-progress"></div><button type="button" class="play intro-next">Дальше</button><div class="intro-footer">ДЕТИ, КАЗАН, ЧАЙ И ГОСТИ</div></section>
 <header class="top"><div><div class="brand">КЕЛІН</div><div class="sub">БӘРІНЕ ҮЛГЕР!</div></div><button class="pause" type="button" disabled>Пауза</button></header>
@@ -1062,7 +1076,7 @@ const GRABS=[{x:8,y:46,item:'piala'},{x:35,y:48,item:'ladle'},{x:24,y:70,item:'p
 // Seats around the dastarkhan (historical order: the tor, opposite the door, is for the elders):
 // 0 Ата and 1 Әже at the sides, 2 and 3 for guests at the back, 4 for Жаным in front.
 // bub: where that person's speech bubble goes (outside the table so it covers no one).
-const SEATS=[{x:32,y:22,stand:[27,32],cup:[39,27.5],bub:[18,3]},{x:68,y:22,stand:[73,32],cup:[61,27.5],bub:[82,3]},{x:43,y:10,stand:[34,11],cup:[43,21],bub:[18,3]},{x:57,y:10,stand:[66,11],cup:[57,21],bub:[82,3]},{x:50,y:41,stand:[42,43],cup:[50,31],bub:[50,49]}];
+const SEATS=[{x:32,y:22,stand:[27,32],cup:[39,27.5],bub:[18,3]},{x:68,y:22,stand:[73,32],cup:[61,27.5],bub:[82,3]},{x:43,y:10,stand:[34,11],cup:[43,21],bub:[18,3]},{x:57,y:10,stand:[66,11],cup:[57,21],bub:[82,3]},{x:50,y:34,stand:[41,37],cup:[58,34],bub:[50,46]}];
 const PEOPLE={
  ata:{name:'Ата',mood:0,rank:1,sip:14,every:4.6,thanks:['Рақмет, қызым!','Көп жаса!'],talk:['Баяғыда біздің ауылда…','Шіркін, шай!','Құрт алыңыз.']},
  aje:{name:'Әже',mood:3,rank:1,sip:11,every:4,thanks:['Рақмет, қызым!','Бәрекелді!'],talk:['Құрт алыңыз.','Шіркін, шай!','Балапаным ұйықтап жатыр ма?']},
@@ -1515,7 +1529,7 @@ function render(){
  const holding=kelin.job&&kelin.job.type==='baby'&&kelin.job.holding;const rocking=kelin.job&&kelin.job.type==='baby'&&kelin.pose==='rock';
  const ajeHere=elders.aje.state==='kids';
  spriteAt(cradleEl,baby.state==='cry'?1:(baby.state==='sleep'&&!ajeHere?0:2),3);cradleEl.classList.toggle('empty',!!holding);cradleEl.classList.toggle('rocking',!!rocking||active('lullaby')||ajeHere);cradleEl.classList.toggle('crying',baby.state==='cry');
- meter(babyMeter,baby.content/100,holding?null:baby.need?NEEDS[baby.need].icon:null,holding?'на руках':baby.state==='cry'?'плачет!':Math.ceil(baby.content)+'%');place(babyMeter,[P.cradle[0],P.cradle[1]-12.5]);
+ meter(babyMeter,baby.content/100,holding?null:baby.need?NEEDS[baby.need].icon:null,holding?'на руках':baby.state==='cry'?'плачет!':Math.ceil(baby.content)+'%');place(babyMeter,[P.cradle[0]-3,P.cradle[1]-12.5]);
  setRing('baby',baby.state==='cry'?1-(time-baby.cryStart)/baby.patience:null,[P.cradle[0]+13,P.cradle[1]-6]);
  // toddler
  const T=toddler;toddlerEl.hidden=T.state==='held'||(kelin.job&&kelin.job.type==='toddler'&&kelin.job.holding);
@@ -1543,7 +1557,7 @@ function render(){
  setRing('door',door?1-(time-door.since)/door.total:null,[P.guestWait[0]+19,P.guestWait[1]-14]);
  const hs=husband.state;husbandEl.hidden=!(hs==='waiting'||hs==='leaving'||hs==='coming');
  if(!husbandEl.hidden){spriteAt(husbandEl,hs==='waiting'?0:hs==='leaving'?1:2,3);place(husbandEl,[husband.x,husband.y]);husbandEl.style.zIndex=Math.round(husband.y*10);husbandEl.style.setProperty('--face',hs==='coming'?(husband.face||1):1);husbandEl.classList.toggle('fading',hs==='leaving');}
- setRing('husband',hs==='waiting'?1-(time-husband.since)/husband.total:null,[husband.x+9,husband.y-24]);{const z=seats[4];setRing('welcome',z&&z.welcome?1-(time-z.welcome.since)/z.welcome.total:null,[SEATS[4].x+9,SEATS[4].y-6]);zNeed.hidden=!(z&&z.wantsFood&&!z.away);}
+ setRing('husband',hs==='waiting'?1-(time-husband.since)/husband.total:null,[husband.x+9,husband.y-24]);{const z=seats[4];setRing('welcome',z&&z.welcome?1-(time-z.welcome.since)/z.welcome.total:null,[SEATS[4].x-9,SEATS[4].y-4]);zNeed.hidden=!(z&&z.wantsFood&&!z.away);}
  dogEl.hidden=dog.state==='away';if(!dogEl.hidden){spriteAt(dogEl,{waiting:0,eating:2,resting:3}[dog.state]||1,4);place(dogEl,P.dog);}
  bowlEl.hidden=dog.state!=='eating';place(bowlEl,[P.dog[0]-6,P.dog[1]]);
  setRing('dog',dog.state==='waiting'?1-(time-dog.since)/dog.total:null,[P.dog[0]+9,P.dog[1]-13]);
@@ -1574,7 +1588,7 @@ function measure(){const w=arena.clientWidth||390,h=(arena.clientHeight||480)-38
 addEventListener('resize',()=>{yard.dataset.side='';});
 
 // ---------- Thumb buttons (two columns under the thumbs: kids on the left, hearth and tea on the right)
-const pads=[['baby','Бесік'],['tea','Шай'],['toddler','Бала'],['fire','Ошақ'],['door','Есік'],['food','Қазан']];
+const pads=[['baby','Бесік'],['toddler','Бала'],['door','Есік'],['fire','Ошақ'],['food','Қазан'],['tea','Шай']];
 const thumbs=pads.map(([type,label],lane)=>{const b=document.createElement('button');b.type='button';b.className='thumb u-thumb';b.dataset.task=type;b.innerHTML='<span class="thumb-face"></span><strong></strong><small></small><span class="thumb-meter"><i></i></span>';b.querySelector('strong').textContent=label;b.onpointerdown=e=>{e.preventDefault();if(state==='bonus'){if(lane<4){catchLane=lane;sound.event('select');}}else request(type);};b.onclick=e=>{if(e.detail===0){if(state==='bonus'){if(lane<4)catchLane=lane;}else request(type);}};$('.thumb-controls').append(b);return b;});
 function queued(type){return kelin&&kelin.queue.findIndex(q=>q.type===type);}
 function renderThumbs(){const bonus=state==='bonus'||state==='bonus-paused';thumbs.forEach((b,lane)=>{const type=pads[lane][0];b.hidden=bonus&&lane>=4;b.disabled=state!=='playing'&&state!=='bonus';b.classList.toggle('bonus-lane',bonus);
@@ -1597,7 +1611,7 @@ woodEl.onclick=()=>request('fire');
 hearthEl.onclick=()=>request(kazan&&kazan.ready?'food':'fire');
 samovarHit.onclick=()=>request('samovar');
 doorEl.onclick=()=>request('door');guestEl.onclick=()=>request('door');husbandEl.onclick=()=>request('door');dogEl.onclick=()=>request('door');
-seatEls.forEach((b,i)=>b.onclick=()=>request('tea',i));
+seatEls.forEach((b,i)=>b.onclick=()=>{const s=seats[i];if(s&&s.wantsFood&&!s.welcome&&(kazan.ready||kelin.carry==='food')){request('food');return;}request('tea',i);});
 
 // ---------- Boost bar, goal bar, menus (series UI)
 const boostBar=document.createElement('div');boostBar.className='boost-bar';boostBar.setAttribute('aria-label','Бустеры: нажми, чтобы применить');
