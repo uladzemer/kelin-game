@@ -1010,6 +1010,10 @@ html,body,#kelin-game,#kelin-game *{touch-action:manipulation}
 #kelin-game .u-flame,#kelin-game .u-hearth::after,#kelin-game .u-doorlight,#kelin-game .u-vapor{mix-blend-mode:normal!important}
 #kelin-game .yard::after{mix-blend-mode:normal!important;background:rgba(40,60,130,calc(var(--dusk,0) * .12 + var(--night,0) * .16))!important}
 #kelin-game .u-flame{opacity:.85}
+
+/* bigger tap targets for the things you press most: an invisible margin around the kids, the cradle and the portraits */
+#kelin-game .u-toddler::after,#kelin-game .u-cradle::after,#kelin-game .u-seat::after,#kelin-game .u-dog::after,#kelin-game .u-man::after{content:'';position:absolute;inset:-18%}
+#kelin-game .u-seat,#kelin-game .u-toddler,#kelin-game .u-cradle{position:absolute}
 </style>
 <section class="intro splash" aria-label="Вступление и главное меню"><div class="intro-top"><span>13TH DEV STUDIO</span><button type="button" class="intro-skip">Пропустить</button></div><div class="studio-logo">13<small>GAMES</small></div><div class="intro-art" aria-hidden="true"><div class="intro-person"></div><div class="intro-person"></div><div class="intro-person"></div><div class="intro-person"></div><div class="intro-kelin"></div></div><h1 data-intro-title>КЕЛІН</h1><p class="intro-copy"></p><div class="intro-progress"></div><button type="button" class="play intro-next">Дальше</button><div class="intro-footer">ДЕТИ, КАЗАН, ЧАЙ И ГОСТИ</div></section>
 <header class="top"><div><div class="brand">КЕЛІН</div><div class="sub">БӘРІНЕ ҮЛГЕР!</div></div><button class="pause" type="button" disabled>Пауза</button></header>
@@ -1107,17 +1111,17 @@ const TOUR_KEY='ulger-tour-v2';
 
 // ---------- The yurt (positions in % of the square yard picture; x from the left, y from the top — y is where the feet are)
 const P={
- cradle:[23,44],cradleStand:[34,46],nurseSpot:[34,50],ajeSpot:[35,39],
- mat:[22,59],matStand:[32,61],ataSpot:[35,54],
+ cradle:[24,44],cradleStand:[34,46],nurseSpot:[34,50],ajeSpot:[35,39],
+ mat:[24,59],matStand:[32,61],ataSpot:[35,54],
  hearth:[50,50],hearthStand:[50,62],
  wood:[70,70],woodStand:[63,73],
  samovar:[79,26],samovarStand:[73,34],
- door:[51,82],doorStand:[45,77],guestWait:[55,90],husbandWait:[45,90],dog:[63,89],dogStand:[57,86],
+ door:[51,82],doorStand:[45,77],guestWait:[56,87],husbandWait:[44,87],dog:[63,86],dogStand:[57,86],
  tableStand:[60,35],
 };
 // The toddler's own corner of the yurt (the play rug and around it): he runs and grabs things only here.
-const ZONE={x0:13,x1:36,y0:46,y1:70};
-const GRABS=[{x:14,y:48,item:'piala'},{x:36,y:48,item:'ladle'},{x:25,y:70,item:'piala'}];
+const ZONE={x0:16,x1:37,y0:46,y1:70};
+const GRABS=[{x:17,y:48,item:'piala'},{x:37,y:49,item:'ladle'},{x:26,y:70,item:'piala'}];
 // Seats around the dastarkhan (historical order: the tor, opposite the door, is for the elders):
 // 0 Ата and 1 Әже at the sides, 2 and 3 for guests at the back, 4 for Жаным in front.
 // bub: where that person's speech bubble goes (outside the table so it covers no one).
@@ -1414,7 +1418,7 @@ function toddlerSpeed(){return 4.6*Math.sqrt(pace())*(EASY()?.8:1);}
 function startMischief(){if(Math.random()<.55){toddler.state='mischief';toddler.mischiefStart=time;toddler.goal={...pick(GRABS)};toddler.item=null;bubble(toddlerEl,'Ойнайын!','ask',1200);}else startWalk();}
 function startWalk(){const T=toddler;if(Math.hypot(T.x-P.mat[0],T.y-P.mat[1])>30){T.x=P.mat[0];T.y=P.mat[1];}T.state='walk';T.target=round===1||Math.random()<.55?'hearth':'door';T.walkStart=time;const g=T.target==='hearth'?[P.hearth[0]-9,P.hearth[1]+9]:[P.door[0]-3,P.door[1]-4];T.walkTotal=Math.max(3,Math.hypot(g[0]-T.x,g[1]-T.y)/toddlerSpeed());bubble(toddlerEl,T.target==='hearth'?'Ой, от!':'Далаға!','ask',1400);}
 // Ата and Әже leave the dastarkhan for a while to sit with the grandchildren.
-const FATHER_KID=[14,66],FATHER_BABY=[34,50];
+const FATHER_KID=[17,67],FATHER_BABY=[35,50];
 function tickFather(dt){const F=father,s=seats[4];if(!s||s.who!=='zhanym'){F.state='idle';return;}const home=[SEATS[4].x,SEATS[4].y+8];
  if(F.state==='idle'&&!s.welcome&&!s.wantsFood&&time-F.fedAt>3){F.x=home[0];F.y=home[1];s.away=true;F.state=toddler.state==='play'&&elders.ata.state==='seat'?'toKid':'toBaby';}
  if(F.state==='toKid')stepTo(F,FATHER_KID,14*dt,()=>{if(toddler.state!=='play'||kelin.carry==='toddler'||kelin.job&&kelin.job.type==='toddler'){F.state='toBaby';return;}F.state='withKid';F.until=time+10;toddler.state='grandpa';toddler.x=P.mat[0];toddler.y=P.mat[1];dropJobs('toddler');bubble(fatherEl,'Кел, ұлым, ойнайық!','thanks',1800);});
@@ -1586,7 +1590,7 @@ function render(){
  const holding=kelin.job&&kelin.job.type==='baby'&&kelin.job.holding;const rocking=kelin.job&&kelin.job.type==='baby'&&kelin.pose==='rock';
  const ajeHere=elders.aje.state==='kids';
  spriteAt(cradleEl,baby.state==='cry'?1:(baby.state==='sleep'&&!ajeHere?0:2),3);cradleEl.classList.toggle('empty',!!holding);cradleEl.classList.toggle('rocking',!!rocking||active('lullaby')||ajeHere);cradleEl.classList.toggle('crying',baby.state==='cry');
- meter(babyMeter,baby.content/100,holding?null:baby.need?NEEDS[baby.need].icon:null,holding?'на руках':baby.state==='cry'?'плачет!':Math.ceil(baby.content)+'%');place(babyMeter,[P.cradle[0]-6,P.cradle[1]-12.5]);
+ meter(babyMeter,baby.content/100,holding?null:baby.need?NEEDS[baby.need].icon:null,holding?'на руках':baby.state==='cry'?'плачет!':Math.ceil(baby.content)+'%');placeIn(babyMeter,[P.cradle[0],P.cradle[1]+7]);
  setRing('baby',baby.state==='cry'?1-(time-baby.cryStart)/baby.patience:null,[P.cradle[0]+13,P.cradle[1]-6]);
  // toddler
  const T=toddler;toddlerEl.hidden=T.state==='held'||(kelin.job&&kelin.job.type==='toddler'&&kelin.job.holding);
@@ -1595,7 +1599,7 @@ function render(){
  S(toddlerEl,'backgroundImage','var('+tsheet+')');S(toddlerEl,'backgroundSize',(tframes*100)+'% 100%');spriteAt(toddlerEl,tf,tframes);
  place(toddlerEl,[T.x,T.y]);V(toddlerEl,'--face',T.state==='walk'||T.state==='mischief'?T.face:1);S(toddlerEl,'zIndex',Math.round(T.y*10));toddlerEl.classList.toggle('walking',T.state==='walk'||T.state==='mischief');toddlerEl.classList.toggle('danger',T.state==='danger');toddlerEl.classList.toggle('playing',T.state==='play'||T.state==='grandpa');
  const kidK=T.state==='play'||T.state==='grandpa'?T.fun/100:T.state==='walk'?1-(time-T.walkStart)/T.walkTotal:T.state==='mischief'?1-(time-T.mischiefStart)/(10*patienceK()):0;
- if(toddlerEl.hidden)toddlerMeter.hidden=true;else{meter(toddlerMeter,kidK,(T.state==='play'&&T.fun<=35)?3:null,T.state==='play'||T.state==='grandpa'?Math.ceil(T.fun)+'%':T.state==='danger'?'опасно!':T.state==='walk'?(T.target==='hearth'?'к огню!':'к двери!'):T.item?'схватил!':'шалит');place(toddlerMeter,[T.x,T.y+5]);S(toddlerMeter,'zIndex',950);}
+ if(toddlerEl.hidden)toddlerMeter.hidden=true;else{meter(toddlerMeter,kidK,(T.state==='play'&&T.fun<=35)?3:null,T.state==='play'||T.state==='grandpa'?Math.ceil(T.fun)+'%':T.state==='danger'?'опасно!':T.state==='walk'?(T.target==='hearth'?'к огню!':'к двери!'):T.item?'схватил!':'шалит');placeIn(toddlerMeter,[T.x,T.y+5]);S(toddlerMeter,'zIndex',950);}
  // elders who came to the kids
  {const F=father,show=['toKid','withKid','toBaby','withBaby','back'].includes(F.state);fatherEl.hidden=!show;if(show){const sitting=F.state==='withKid'||F.state==='withBaby';fatherEl.classList.toggle('sitting',sitting);if(sitting)spriteAt(fatherEl,F.state==='withKid'?0:1,3);else spriteAt(fatherEl,1,3);place(fatherEl,[F.x,F.y]);S(fatherEl,'zIndex',Math.round(F.y*10));V(fatherEl,'--face',F.state==='withKid'?-1:sitting?1:(F.face||1));}}
  for(const [who,elm,sit,walk] of [['aje',ajeEl,0,1],['ata',ataEl,2,3]]){const E=elders[who];elm.hidden=E.state==='seat';if(E.state==='seat')continue;spriteAt(elm,E.state==='kids'?sit:walk,4);place(elm,[E.x,E.y]);S(elm,'zIndex',Math.round(E.y*10));const back=E.state==='back';V(elm,'--face',who==='aje'?(back?-1:1):(back?-1:1));}
@@ -1604,9 +1608,9 @@ function render(){
  hearthEl.querySelector('.u-fuel b').style.width=fire.fuel+'%';hearthEl.querySelector('.u-cook b').style.width=kazan.cook+'%';
  setRing('food',kazan.ready?1-(time-kazan.readyAt)/kazan.patience:null,[P.hearth[0]+22,P.hearth[1]+15]);
  woodEl.classList.toggle('wanted',fire.fuel<=35);dishEl.hidden=!(kazan.servedUntil>time);kurtEl.hidden=!dishEl.hidden;
- meter(fireMeter,fire.fuel/100,null,fire.fuel<=0?'🔥 погас!':'🔥 '+Math.ceil(fire.fuel)+'%');place(fireMeter,[P.hearth[0]+22,P.hearth[1]-7]);
- meter(cookMeter,kazan.ready?1-(time-kazan.readyAt)/kazan.patience:1-kazan.cook/100,null,kazan.ready?'🍲 готово!':'🍲 '+Math.ceil(100-kazan.cook)+'%');cookMeter.classList.remove('low');cookMeter.classList.toggle('low',kazan.ready);cookMeter.classList.toggle('ready',kazan.ready);place(cookMeter,[P.hearth[0]+22,P.hearth[1]+6]);
- meter(samovarMeter,samovar.water/100,null,'♨ '+Math.floor(samovar.water)+'%');samovarMeter.classList.toggle('low',samovar.water<30);place(samovarMeter,[P.samovar[0]+3,P.samovar[1]+10]);samovarHit.classList.toggle('boiling',samovar.water>=30);
+ meter(fireMeter,fire.fuel/100,null,fire.fuel<=0?'🔥 погас!':'🔥 '+Math.ceil(fire.fuel)+'%');placeIn(fireMeter,[P.hearth[0]+22,P.hearth[1]-7]);
+ meter(cookMeter,kazan.ready?1-(time-kazan.readyAt)/kazan.patience:1-kazan.cook/100,null,kazan.ready?'🍲 готово!':'🍲 '+Math.ceil(100-kazan.cook)+'%');cookMeter.classList.remove('low');cookMeter.classList.toggle('low',kazan.ready);cookMeter.classList.toggle('ready',kazan.ready);placeIn(cookMeter,[P.hearth[0]+22,P.hearth[1]+6]);
+ meter(samovarMeter,samovar.water/100,null,'♨ '+Math.floor(samovar.water)+'%');samovarMeter.classList.toggle('low',samovar.water<30);placeIn(samovarMeter,[P.samovar[0]-3,P.samovar[1]+10]);samovarHit.classList.toggle('boiling',samovar.water>=30);
  // seats
  seatEls.forEach((b,i)=>{const s=seats[i];b.hidden=!s||s.away;if(!s||s.away){cupEls[i].hidden=true;return;}const p=PEOPLE[s.who];const face=b.querySelector('.u-face');S(face,'backgroundImage','var(--mood'+p.mood+')');spriteAt(face,s.tea<=0?2:s.tea<=35?1:0,3);b.querySelector('small').textContent=p.name;b.classList.toggle('golden',s.tea>0&&s.tea<=35);b.classList.toggle('angry',s.tea<=0&&!s.welcome);b.classList.toggle('selected',!!(kelin.job&&kelin.job.type==='tea'&&kelin.job.seat===i));const cup=cupEls[i];cup.hidden=false;V(cup,'--lvl',s.tea);cup.classList.toggle('golden',s.tea>0&&s.tea<=35);cup.classList.toggle('angry',s.tea<=0&&!s.welcome);cup.querySelector('em').textContent=s.welcome?'ждёт':s.tea<=0?'💢':Math.ceil(s.tea)+'%';b.setAttribute('aria-label',p.name+': '+Math.ceil(s.tea)+'% чая. Налить');});
  // door: guest, Жаным, the dog
@@ -1645,8 +1649,10 @@ function renderKelin(){
 const PIC={above:210/1128.6,below:(1672-210-1128.6)/1128.6};
 // The yard box is the square of game coordinates; the picture goes on below it (grass and the path), so the whole picture
 // has the proportion VIS. It is scaled to fill the play area, cropping the sides a little on tall phones.
+const VIS={x0:0,x1:100};/* the part of the yard the phone shows, in % */
+function placeIn(e,[x,y],half=11){place(e,[clamp(x,VIS.x0+half,VIS.x1-half),y]);}
 let arenaSize=null;if(window.ResizeObserver)new ResizeObserver(()=>{arenaSize=null;}).observe(arena);
-function measure(){if(!arenaSize)arenaSize=[arena.clientWidth||390,arena.clientHeight||480];const w=arenaSize[0],h=arenaSize[1]-8,key=w+'x'+h;if(yard.dataset.side===key)return;yard.dataset.side=key;const ABOVE=PIC.above,BELOW=PIC.below;const ZOOM=1.22;let yw=Math.max(w*ZOOM,h/(ABOVE+1+BELOW));if(yw>h*1.05)yw=h*1.05;yw=Math.min(yw,w*1.3);const top=clamp((h-yw)/2,h-(1+BELOW)*yw,ABOVE*yw);S(yard,'width',yw+'px');S(yard,'height',yw+'px');S(yard,'marginTop',top+'px');S(yard,'marginLeft',((w-yw)/2)+'px');V(yard,'--u',yw/480);}
+function measure(){if(!arenaSize)arenaSize=[arena.clientWidth||390,arena.clientHeight||480];const w=arenaSize[0],h=arenaSize[1]-8,key=w+'x'+h;if(yard.dataset.side===key)return;yard.dataset.side=key;const ABOVE=PIC.above,BELOW=PIC.below;const ZOOM=1.34;let yw=Math.max(w*ZOOM,h/(ABOVE+1+BELOW));if(yw>h*1.11)yw=h*1.11;yw=Math.min(yw,w*1.36);const top=yw>h?0:clamp((h-yw)/2,h-(1+BELOW)*yw,ABOVE*yw);S(yard,'width',yw+'px');S(yard,'height',yw+'px');S(yard,'marginTop',top+'px');S(yard,'marginLeft',((w-yw)/2)+'px');V(yard,'--u',yw/480);VIS.x0=Math.max(0,(yw-w)/2/yw*100);VIS.x1=100-VIS.x0;}
 addEventListener('resize',()=>{yard.dataset.side='';arenaSize=null;});
 {const inTelegram=!!(window.TelegramWebviewProxy||window.Telegram||/Telegram/i.test(navigator.userAgent));const probe=document.createElement('div');probe.style.cssText='position:fixed;top:0;height:env(safe-area-inset-top);visibility:hidden';document.body.append(probe);const top=probe.offsetHeight;probe.remove();if(inTelegram&&top>20)root.classList.add('tg-full');}
 
