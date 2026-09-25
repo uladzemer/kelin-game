@@ -988,6 +988,8 @@ html,body,#kelin-game,#kelin-game *{touch-action:manipulation}
 #kelin-game .yard::before,#kelin-game .yard::after{top:-18.607%!important;height:148.146%!important;bottom:auto}
 #kelin-game .yard::before{background:linear-gradient(rgba(40,22,10,calc(.08 + var(--dusk,0) * .32 + var(--dawn,0) * .1)),rgba(40,22,10,calc(.08 + var(--dusk,0) * .32 + var(--dawn,0) * .1))),var(--u-scene) top/100% 100% no-repeat!important}
 #kelin-game .yard{-webkit-mask-image:none!important;mask-image:none!important}
+/* the shaft starts at the shanyrak (the dome's crown, above the hearth) */
+#kelin-game .u-beam{top:38%!important;left:50%!important}
 </style>
 <section class="intro splash" aria-label="Вступление и главное меню"><div class="intro-top"><span>13TH DEV STUDIO</span><button type="button" class="intro-skip">Пропустить</button></div><div class="studio-logo">13<small>GAMES</small></div><div class="intro-art" aria-hidden="true"><div class="intro-person"></div><div class="intro-person"></div><div class="intro-person"></div><div class="intro-person"></div><div class="intro-kelin"></div></div><h1 data-intro-title>КЕЛІН</h1><p class="intro-copy"></p><div class="intro-progress"></div><button type="button" class="play intro-next">Дальше</button><div class="intro-footer">ДЕТИ, КАЗАН, ЧАЙ И ГОСТИ</div></section>
 <header class="top"><div><div class="brand">КЕЛІН</div><div class="sub">БӘРІНЕ ҮЛГЕР!</div></div><button class="pause" type="button" disabled>Пауза</button></header>
@@ -1158,6 +1160,7 @@ const ambient=document.createElement('div');ambient.className='u-ambient';arena.
 const yard=document.createElement('div');yard.className='yard';arena.append(yard);
 function el(cls,parent=yard,tag='div'){const e=document.createElement(tag);e.className=cls;parent.append(e);return e;}
 function hit(cls,label){const b=el(cls+' u-hit',yard,'button');b.type='button';b.setAttribute('aria-label',label);return b;}
+const SHANYRAK=[50,38];/* the crown of the dome, projected on the picture */
 const beamEl=el('u-beam');const sunEl=el('u-sun');const horseEls=[[11,94,0,0],[27,99,3,2.1]].map(([x,y,first,shift])=>{const e=el('u-horse');e.style.left=x+'%';e.style.top=y+'%';e.style.zIndex=Math.round(y*10);return {e,first,shift};});const moonEl=el('u-moon');const doorLight=el('u-doorlight');
 const hearthEl=el('u-hearth');hearthEl.innerHTML='<i class="u-flame"></i><i class="u-steam"></i><span class="u-fuel"><b></b></span><span class="u-cook"><b></b></span>';
 const woodEl=hit('u-wood','Поленница: принести дрова к очагу');
@@ -1542,7 +1545,7 @@ function render(){
  if(!baby)return;
  const playing=state==='playing',t=dayT();
  // the sun: light from the shanyrak crosses the floor from the west (morning) to the east (evening)
- const ang=Math.PI*t,edge=Math.max(0,1-Math.min(t,1-t)/.18),r=30+10*edge,sx=50+r*Math.sin(ang)*.8,sy=44-r*Math.cos(ang)*.85;sunEl.style.left=sx+'%';sunEl.style.top=sy+'%';{const col=t<.2?[255,196,120,.75-t*1.5]:t<.64?[255,248,220,.35]:t<CALM?[255,150,90,.28]:[90,110,170,.35];doorLight.style.setProperty('--dl','rgba('+col.join(',')+')');doorLight.style.setProperty('--dlen',(t<.2?1.25-t:t<.64?.6:.45).toFixed(2));}sunEl.style.setProperty('--rot',(-ang*180/Math.PI)+'deg');sunEl.style.setProperty('--stretch',(1+edge*.7).toFixed(3));{const dx=sx-50,dy=sy+8,len=Math.hypot(dx,dy);beamEl.style.height=len+'%';beamEl.style.transform='translateX(-50%) rotate('+(-Math.atan2(dx,dy)*180/Math.PI)+'deg)';}yard.style.setProperty('--night',Math.max(0,(t-CALM)/(1-CALM)).toFixed(3));moonEl.style.left=(38+t*6)+'%';moonEl.style.top='58%';yard.style.setProperty('--dusk',Math.max(0,(t-.7)/.3).toFixed(3));yard.style.setProperty('--dawn',Math.max(0,1-t/.15).toFixed(3));
+ const ang=Math.PI*t,edge=Math.max(0,1-Math.min(t,1-t)/.18),r=30+10*edge,sx=50+r*Math.sin(ang)*.8,sy=44-r*Math.cos(ang)*.85;sunEl.style.left=sx+'%';sunEl.style.top=sy+'%';{const col=t<.2?[255,196,120,.75-t*1.5]:t<.64?[255,248,220,.35]:t<CALM?[255,150,90,.28]:[90,110,170,.35];doorLight.style.setProperty('--dl','rgba('+col.join(',')+')');doorLight.style.setProperty('--dlen',(t<.2?1.25-t:t<.64?.6:.45).toFixed(2));}sunEl.style.setProperty('--rot',(-ang*180/Math.PI)+'deg');sunEl.style.setProperty('--stretch',(1+edge*.7).toFixed(3));{const dx=sx-SHANYRAK[0],dy=sy-SHANYRAK[1],len=Math.hypot(dx,dy);beamEl.style.height=len+'%';beamEl.style.transform='translateX(-50%) rotate('+(-Math.atan2(dx,dy)*180/Math.PI)+'deg)';}yard.style.setProperty('--night',Math.max(0,(t-CALM)/(1-CALM)).toFixed(3));moonEl.style.left=(38+t*6)+'%';moonEl.style.top='58%';yard.style.setProperty('--dusk',Math.max(0,(t-.7)/.3).toFixed(3));yard.style.setProperty('--dawn',Math.max(0,1-t/.15).toFixed(3));
  // cradle and baby
  const holding=kelin.job&&kelin.job.type==='baby'&&kelin.job.holding;const rocking=kelin.job&&kelin.job.type==='baby'&&kelin.pose==='rock';
  const ajeHere=elders.aje.state==='kids';
