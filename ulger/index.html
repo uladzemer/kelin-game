@@ -837,7 +837,10 @@ html,body{margin:0!important;padding:0!important;background:#120c08!important;ov
 #kelin-game .u-cup i{left:14%;right:14%;top:30%;bottom:auto;height:48%!important;max-height:none;border-radius:0 0 50% 50%/0 0 100% 100%;background:linear-gradient(180deg,transparent calc(100% - var(--lvl,100) * 1%),#e3a767 calc(100% - var(--lvl,100) * 1%),#c9853f 60%,#a8662f);opacity:.95}
 #kelin-game .yard .gain{left:50%!important;top:50%!important;transform:translate(-50%,-50%) scale(.72)!important;opacity:.95}
 /* the booster bar always keeps its place: new boosters appear inside it and never push the field */
-#kelin-game .boost-bar,#kelin-game .boost-bar.empty{min-height:52px!important;height:52px;padding-block:4px!important;box-sizing:border-box;overflow:hidden}
+#kelin-game .boost-bar,#kelin-game .boost-bar.empty{min-height:0!important;height:58px;padding-block:6px!important;box-sizing:border-box;overflow:visible;align-items:center}
+#kelin-game .boost-bar .bb{flex:0 0 44px!important;width:44px;height:44px!important;max-width:44px;aspect-ratio:1}
+#kelin-game .boost-bar .series{flex-direction:row!important;gap:4px;margin-left:auto}
+#kelin-game .boost-bar .series i{width:10px!important;height:10px!important}
 
 #kelin-game .phrase-book .phrases{display:grid;grid-template-columns:1fr 1fr;gap:6px 12px;margin:6px 0 0}
 #kelin-game .phrase-book dt{font:800 15px 'Rubik',sans-serif;color:#ffe27a}
@@ -875,6 +878,26 @@ html,body{margin:0!important;padding:0!important;background:#120c08!important;ov
 /* the shanyrak light: softer, and it fades as the evening (Кеш) comes */
 #kelin-game .u-sun{opacity:calc(.5 - var(--dusk,0) * .42)!important}
 #kelin-game .u-beam{opacity:calc(.8 - var(--dusk,0) * .7)}
+
+/* v7: the parts of the day; Жаным waiting for food */
+#kelin-game .u-phase{left:50%;top:40%;transform:translate(-50%,-50%);z-index:995;pointer-events:none;text-align:center;opacity:0;padding:8px 18px;border-radius:16px;background:#1d110bcc;border:1px solid #ffd76a88;box-shadow:0 6px 20px #000a}
+#kelin-game .u-phase b{display:block;font:800 calc(26px * var(--u)) 'Rubik',sans-serif;color:#ffe27a;text-shadow:0 2px 0 #6b3410}
+#kelin-game .u-phase small{display:block;font:700 calc(12px * var(--u)) 'Nunito',sans-serif;color:#fff1d5}
+#kelin-game .u-phase.show{animation:u-phase 2.6s ease forwards}
+@keyframes u-phase{0%{opacity:0;transform:translate(-50%,-40%)}12%{opacity:1;transform:translate(-50%,-50%)}80%{opacity:1}100%{opacity:0}}
+#kelin-game .u-want-food{width:9%;aspect-ratio:1;transform:translate(-50%,-50%);z-index:960;pointer-events:none;border-radius:50%;background:var(--u-items) 28.57% 0/800% 100% no-repeat,#fff0b0;border:2px solid #ffd76a;animation:u-pulse .8s ease-in-out infinite}
+#kelin-game .u-want-food[hidden]{display:none}
+
+/* v8: the beam is as wide as the shanyrak spot (parallel sunlight); doorway light by the time of day */
+#kelin-game .u-beam{width:24%!important;clip-path:none!important;filter:blur(6px)!important;background:linear-gradient(180deg,rgba(255,244,200,0),rgba(255,236,170,calc(.22 - var(--dusk,0) * .15)) 35%,rgba(255,226,150,calc(.16 - var(--dusk,0) * .1)))!important}
+#kelin-game .u-doorlight{left:50%;top:92%;width:26%;height:calc(18% * var(--dlen,1));transform:translate(-50%,-100%);transform-origin:50% 100%;pointer-events:none;z-index:2;border-radius:50% 50% 8px 8px;background:radial-gradient(ellipse at 50% 100%,var(--dl,rgba(255,240,200,.3)),transparent 70%);mix-blend-mode:screen;filter:blur(3px);transition:height 1s,background 1s}
+#kelin-game .u-seat small{position:relative;z-index:2}
+/* the angry portrait only wobbles in place (u-shake is for the cradle and moves it) */
+#kelin-game .u-seat.angry .u-face{animation:u-wobble .5s ease-in-out infinite}
+@keyframes u-wobble{0%,100%{transform:rotate(0)}25%{transform:rotate(-3deg)}75%{transform:rotate(3deg)}}
+/* no empty bars around the field on any phone: a blurred copy of the yurt fills them, and the field's edges melt into it */
+#kelin-game .u-ambient{position:absolute;inset:-6%;background:var(--u-scene) center/cover no-repeat;filter:blur(14px) brightness(.6) saturate(.9);pointer-events:none;z-index:0}
+#kelin-game .yard{z-index:1;-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 4%,#000 96%,transparent 100%),linear-gradient(180deg,transparent 0,#000 3%,#000 97%,transparent 100%);-webkit-mask-composite:source-in;mask-image:linear-gradient(90deg,transparent 0,#000 4%,#000 96%,transparent 100%),linear-gradient(180deg,transparent 0,#000 3%,#000 97%,transparent 100%);mask-composite:intersect}
 </style>
 <section class="intro splash" aria-label="Вступление и главное меню"><div class="intro-top"><span>13TH DEV STUDIO</span><button type="button" class="intro-skip">Пропустить</button></div><div class="studio-logo">13<small>GAMES</small></div><div class="intro-art" aria-hidden="true"><div class="intro-person"></div><div class="intro-person"></div><div class="intro-person"></div><div class="intro-person"></div><div class="intro-kelin"></div></div><h1 data-intro-title>КЕЛІН</h1><p class="intro-copy"></p><div class="intro-progress"></div><button type="button" class="play intro-next">Дальше</button><div class="intro-footer">ДЕТИ, КАЗАН, ЧАЙ И ГОСТИ</div></section>
 <header class="top"><div><div class="brand">КЕЛІН</div><div class="sub">БӘРІНЕ ҮЛГЕР!</div></div><button class="pause" type="button" disabled>Пауза</button></header>
@@ -972,7 +995,7 @@ const ZONE={x0:5,x1:31,y0:50,y1:80};
 const GRABS=[{x:8,y:50,item:'piala'},{x:31,y:54,item:'ladle'},{x:22,y:80,item:'piala'}];
 // Seats around the dastarkhan (historical order: the tor, opposite the door, is for the elders):
 // 0 Ата and 1 Әже at the sides, 2 and 3 for guests at the back, 4 for Жаным in front.
-const SEATS=[{x:25,y:21,stand:[21,34],cup:[38,22]},{x:75,y:21,stand:[79,34],cup:[62,22]},{x:37,y:8,stand:[26,13],cup:[43,15]},{x:63,y:8,stand:[74,13],cup:[57,15]},{x:50,y:34,stand:[40,38],cup:[50,27]}];
+const SEATS=[{x:25,y:21,stand:[21,34],cup:[38,22]},{x:75,y:21,stand:[79,34],cup:[62,22]},{x:33,y:9,stand:[24,15],cup:[44,16]},{x:67,y:9,stand:[76,15],cup:[56,16]},{x:50,y:37,stand:[39,40],cup:[50,26]}];
 const PEOPLE={
  ata:{name:'Ата',mood:0,rank:1,sip:14,every:4.6,thanks:['Рақмет, қызым!','Көп жаса!'],talk:['Баяғыда біздің ауылда…','Шіркін, шай!','Құрт алыңыз.']},
  aje:{name:'Әже',mood:3,rank:1,sip:11,every:4,thanks:['Рақмет, қызым!','Бәрекелді!'],talk:['Құрт алыңыз.','Шіркін, шай!','Балапаным ұйықтап жатыр ма?']},
@@ -981,9 +1004,9 @@ const PEOPLE={
  zhanym:{name:'Жаным',mood:2,rank:4,sip:18,every:4.6,thanks:['Рақмет, жаным!','Керемет!'],talk:['Қой-қозы аман.']},
 };
 // A round is one whole day: morning (see Жаным off), midday (guests), evening (Жаным comes home).
-const DAY=120;
+const DAY=120,CALM=.86;let calm=false,phaseShown=0;
 const dayT=()=>clamp((time-dayStart)/DAY,0,1);
-function dayPart(){const t=dayT();return t<.2?['Таң','утро']:t<.7?['Түс','день']:['Кеш','вечер'];}
+function dayPart(){const t=dayT();return t<.2?['Таң','утро']:t<.64?['Түс','день']:['Кеш','вечер'];}
 const NEEDS={hunger:{icon:0,text:'Хочет есть',act:2.1,pose:'nurse'},wet:{icon:1,text:'Мокрый',act:1.5,pose:'change'},sleepy:{icon:2,text:'Хочет спать',act:1.3,pose:'rock'}};
 
 // ---------- Boosters
@@ -1020,7 +1043,7 @@ function freshWorld(){
  seats=[null,null,null,null,null];
  sit('ata',0,82);sit('aje',1,64);
  // Жаным is at the door in the morning, waiting for his food bundle before the pasture
- husband={state:'waiting',since:time,total:12*patienceK(),x:P.husbandWait[0],y:P.husbandWait[1],back:time+DAY*.72};
+ husband={state:'waiting',since:time,total:12*patienceK(),x:P.husbandWait[0],y:P.husbandWait[1],back:time+DAY*.64};phaseShown=0;
  dog={state:'away',next:time+DAY*random(.22,.32),since:0,total:12,until:0};
  elders={ata:{state:'seat',next:time+random(25,35),until:0,x:SEATS[0].x,y:SEATS[0].y+8},aje:{state:'seat',next:time+random(18,26),until:0,x:SEATS[1].x,y:SEATS[1].y+8}};
  door=null;knockAt=(round>=2&&!(EASY()&&round===2))?time+DAY*random(.24,.3):Infinity;husbandHelpAt=time+random(10,16);talkAt=time+random(5,8);
@@ -1031,10 +1054,12 @@ function drink(s){const p=PEOPLE[s.who];s.next=p.every*random(.8,1.25);s.amount=
 
 // ---------- DOM: yard and everything on it
 const arena=$('.arena');
+// the same yurt, blurred and dimmed, fills whatever the phone leaves around the field, so there are no empty bars
+const ambient=document.createElement('div');ambient.className='u-ambient';arena.append(ambient);
 const yard=document.createElement('div');yard.className='yard';arena.append(yard);
 function el(cls,parent=yard,tag='div'){const e=document.createElement(tag);e.className=cls;parent.append(e);return e;}
 function hit(cls,label){const b=el(cls+' u-hit',yard,'button');b.type='button';b.setAttribute('aria-label',label);return b;}
-const beamEl=el('u-beam');const sunEl=el('u-sun');
+const beamEl=el('u-beam');const sunEl=el('u-sun');const doorLight=el('u-doorlight');
 const hearthEl=el('u-hearth');hearthEl.innerHTML='<i class="u-flame"></i><i class="u-steam"></i><span class="u-fuel"><b></b></span><span class="u-cook"><b></b></span>';
 const woodEl=hit('u-wood','Поленница: принести дрова к очагу');
 const samovarHit=hit('u-samovar','Самовар: наполнить чайник');samovarHit.innerHTML='<i class="u-vapor"></i><i class="u-vapor two"></i>';const samovarMeter=el('u-meter samo');samovarMeter.innerHTML='<i class="u-need" hidden></i><b><i></i></b><em></em>';const fireMeter=el('u-meter fire');fireMeter.innerHTML='<i class="u-need" hidden></i><b><i></i></b><em></em>';const cookMeter=el('u-meter cook');cookMeter.innerHTML='<i class="u-need" hidden></i><b><i></i></b><em></em>';
@@ -1050,16 +1075,17 @@ const bowlEl=el('u-bowl');
 const ajeEl=el('u-elder aje');const ataEl=el('u-elder ata');
 const kelinEl=el('u-kelin');kelinEl.innerHTML='<i class="u-body"></i><span class="u-pot" title="Чайник"></span>';
 const helperEl=el('u-helper');
-const seatEls=SEATS.map((s,i)=>{const b=hit('u-seat','Место '+i);b.dataset.seat=i;b.innerHTML='<i class="u-face"></i><small></small>';b.style.left=s.x+'%';b.style.top=s.y+'%';return b;});
-const cupEls=SEATS.map((s,i)=>{const c=hit('u-cup','Пиала');c.innerHTML='<span class="u-tea"><i></i></span><em></em>';c.style.left=s.cup[0]+'%';c.style.top=s.cup[1]+'%';c.onclick=()=>request('tea',i);return c;});
-const kurtEl=el('u-kurt');
+const seatEls=SEATS.map((s,i)=>{const b=hit('u-seat','Место '+i);b.dataset.seat=i;b.innerHTML='<i class="u-face"></i><small></small>';b.style.left=s.x+'%';b.style.top=s.y+'%';b.style.zIndex=Math.round((s.y+6)*10);return b;});
+const cupEls=SEATS.map((s,i)=>{const c=hit('u-cup','Пиала');c.innerHTML='<span class="u-tea"><i></i></span><em></em>';c.style.left=s.cup[0]+'%';c.style.top=s.cup[1]+'%';c.style.zIndex=Math.round(s.cup[1]*10);c.onclick=()=>request('tea',i);return c;});
+const kurtEl=el('u-kurt');const zNeed=el('u-want-food');zNeed.hidden=true;zNeed.style.left=(SEATS[4].x-9)+'%';zNeed.style.top=(SEATS[4].y-5)+'%';
 const bubbleFor=new Map();
 function bubble(target,text,kind='thanks',ms=1800){let b=bubbleFor.get(target);if(!b){b=el('u-bubble');bubbleFor.set(target,b);}const atTable=target.classList.contains('u-seat');if(atTable)for(const [t,o] of bubbleFor)if(o!==b&&t.classList.contains('u-seat'))o.classList.remove('show');b.textContent=text;b.className='u-bubble '+kind;const r=target.getBoundingClientRect(),y=yard.getBoundingClientRect();if(!y.width||!r.width)return;const top=(r.top-y.top)/y.height*100,below=top<14;b.classList.toggle('below',below);b.style.left=clamp((r.left+r.width/2-y.left)/y.width*100,16,84)+'%';b.style.top=(below?(r.bottom-y.top)/y.height*100+1:Math.max(2,top-1))+'%';void b.offsetWidth;b.classList.add('show');clearTimeout(b.timer);b.timer=setTimeout(()=>b.classList.remove('show'),ms);}
 const rings={};
 function ring(key){if(!rings[key]){rings[key]=el('u-ring');rings[key].innerHTML='<i></i>';}return rings[key];}
+const phaseEl=el('u-phase');phaseEl.innerHTML='<b></b><small></small>';
 const gainEl=el('gain');gainEl.setAttribute('aria-hidden','true');
 const place=(e,[x,y])=>{e.style.left=x+'%';e.style.top=y+'%';};
-place(cradleEl,P.cradle);place(woodEl,P.wood);place(samovarHit,P.samovar);place(doorEl,P.door);place(hearthEl,P.hearth);place(kurtEl,[46,20]);const dishEl=el('u-dish-on');place(dishEl,[54,20]);
+place(cradleEl,P.cradle);place(woodEl,P.wood);place(samovarHit,P.samovar);place(doorEl,P.door);place(hearthEl,P.hearth);place(kurtEl,[46,20]);const dishEl=el('u-dish-on');place(dishEl,[54,20]);kurtEl.style.zIndex=200;dishEl.style.zIndex=200;
 
 // ---------- Kelin's work: every task is a small route of steps (go / act)
 const TASKS={
@@ -1078,7 +1104,7 @@ function request(type,seat){
  sound.ensure();
  if(type==='tea'&&seat===undefined)seat=teaChoice();
  if(type==='tea'&&(seat===undefined||seat<0||!seats[seat]||seats[seat].away)){notify('Сейчас никто не ждёт чая');return;}
- if(type==='food'&&!kazan.ready&&!busyWith('fire')){notify('Казан ещё варится — '+Math.floor(kazan.cook)+'%');return;}
+ if(type==='food'&&!kazan.ready&&!busyWith('fire')){notify('Казан ещё варится — осталось '+Math.ceil(100-kazan.cook)+'%');return;}
  const t={type,seat,who:type==='tea'&&seats[seat]?seats[seat].who:undefined,at:type==='door'?doorQueueWho():undefined};const key=taskKey(t);
  if(kelin.job&&taskKey(kelin.job)===key)return;
  if(kelin.queue.some(q=>taskKey(q)===key))return;
@@ -1087,7 +1113,7 @@ function request(type,seat){
  else notify('Очередь полна — сначала закончи дела');
 }
 // «Шай» button: the one who needs tea most, elders first (the custom), otherwise the emptiest cup; never a full cup.
-function teaChoice(){let best=-1,bestKey=Infinity;const taken=kelin?[kelin.job,...kelin.queue].filter(t=>t&&t.type==='tea').map(t=>t.seat):[];seats.forEach((s,i)=>{if(!s||s.away||taken.includes(i)||s.tea>=tooFull())return;const low=s.tea<=35;const key=(low?0:1000)+(low?PEOPLE[s.who].rank*100:0)+s.tea;if(key<bestKey){bestKey=key;best=i;}});return best;}
+function teaChoice(){let best=-1,bestKey=Infinity;const taken=kelin?[kelin.job,...kelin.queue].filter(t=>t&&t.type==='tea').map(t=>t.seat):[];seats.forEach((s,i)=>{if(!s||s.away||taken.includes(i)||s.tea>=tooFull())return;const low=s.tea<=35||!!s.welcome;const key=s.welcome?-1:(low?0:1000)+(low?PEOPLE[s.who].rank*100:0)+s.tea;if(key<bestKey){bestKey=key;best=i;}});return best;}
 // The door button serves whoever is at the door: Жаным in the morning, a guest, or the dog.
 // who a new door tap is for: skip whoever kelin is already serving at the door
 function doorQueueWho(){const all=[husband.state==='waiting'&&'husband',door&&'guest',dog.state==='waiting'&&'dog'].filter(Boolean);const taken=[kelin.job,...kelin.queue].filter(q=>q&&q.type==='door').map(q=>q.who||q.at);return all.find(w=>!taken.includes(w))||all[0];}
@@ -1171,7 +1197,7 @@ function pickUpToddler(){if(toddler.state==='play'||toddler.state==='held'||todd
 function putDownToddler(){if(toddler.state!=='held')return;kelin.carry=null;toddler.state='play';toddler.x=P.mat[0];toddler.y=P.mat[1];toddler.fun=70;toddler.variant=Math.floor(Math.random()*5);stats.toddler++;complete(150,toddler.pickGolden&&!toddler.wasDanger,P.mat);}
 function addWood(){kelin.carry=null;const golden=fire.fuel>0&&fire.fuel<=35,wasting=fire.fuel>70;const before=fire.fuel;fire.fuel=100;fire.outNoted=false;sound.event('wood');stats.fire++;if(wasting){showGain(0,P.hearth,['Артық!','miss','лишнее']);return;}complete(before<=0?60:100,golden,P.hearth);}
 function takeFood(){if(!kazan.ready)return;kazan.ready=false;kazan.cook=0;kelin.carry='food';kazan.servedGolden=time-kazan.readyAt<=kazan.patience*.45;sound.event('pickup');}
-function serveFood(){if(kelin.carry!=='food')return;kelin.carry=null;kazan.servedUntil=time+25;const eaters=seats.filter(s=>s&&!s.away).length;stats.food++;sound.event('serve');const b=seatEls[seats.findIndex(s=>s&&!s.away)];if(b)bubble(b,'Астарыңыз дәмді болсын!','thanks',1500);complete(200+eaters*40,kazan.servedGolden,[50,20]);}
+function serveFood(){if(kelin.carry!=='food')return;kelin.carry=null;kazan.servedUntil=time+25;const z=seats[4];if(z&&z.wantsFood){z.wantsFood=false;score+=100;setTimeout(()=>{if(seats[4])bubble(seatEls[4],'Рақмет! Дәмді екен!','thanks',1600);},400);}const eaters=seats.filter(s=>s&&!s.away).length;stats.food++;sound.event('serve');const b=seatEls[seats.findIndex(s=>s&&!s.away)];if(b)bubble(b,'Астарыңыз дәмді болсын!','thanks',1500);complete(200+eaters*40,kazan.servedGolden,[50,20]);}
 function fillTeapot(){kelin.teapot=4;samovar.water=Math.max(0,samovar.water-30);sound.event('cup');}
 function samovarWait(){return .6+Math.max(0,30-samovar.water)/samovarHeat();}
 function samovarHeat(){return 100/28*pace();}
@@ -1180,7 +1206,8 @@ function pourTea(i){const s=seats[i];if(!s||s.away)return;
  if(s.tea>=tooFull()){stats.declined++;bubble(seatEls[i],'✋ Жетеді, рақмет!','angry',1500);sound.event('penalty');score=Math.max(roundStart,score-40);showGain(0,[SEATS[i].x,SEATS[i].y],['Артық!','miss','лишнее'],40);combo=0;lastSuccess=-Infinity;if(round>=2&&!EASY())loseHeart(.5,'Пиала почти полная');return;}
  if(round>=3&&!EASY()){const elder=seats.findIndex((o,j)=>o&&!o.away&&j!==i&&PEOPLE[o.who].rank<PEOPLE[s.who].rank&&o.tea<=35);if(elder>=0){stats.order++;loseHeart(.5,'Сначала старшим: '+PEOPLE[seats[elder].who].name+' ждёт');showGain(0,[SEATS[i].x,SEATS[i].y],['Алдымен үлкенге!','miss','сначала старшим']);setTimeout(()=>aje('order'),400);}}
  if(door&&round>=2&&!EASY()&&time-door.since>1.5){loseHeart(.5,'Гость ждёт у порога, а келін занята чаем');setTimeout(()=>aje('guest'),300);}
- const added=100-s.tea,golden=s.tea>0&&s.tea<=35;s.tea=100;s.empty=0;s.angryFor=0;kelin.teapot=Math.max(0,kelin.teapot-1);stats.tea++;sound.event('cup');
+ const welcome=s.welcome;if(welcome){s.welcome=null;s.wantsFood=true;s.foodSince=time;setTimeout(()=>{if(seats[i]&&seats[i].wantsFood)bubble(seatEls[i],'Ас бар ма?','ask',1600);},2600);}
+ const added=100-s.tea,golden=welcome?time-welcome.since<=welcome.total*.45:s.tea>0&&s.tea<=35;if(welcome){score+=100;setTimeout(()=>bubble(seatEls[i],'Рақмет, жаным!','thanks',1500),250);}s.tea=100;s.empty=0;s.angryFor=0;kelin.teapot=Math.max(0,kelin.teapot-1);stats.tea++;sound.event('cup');
  if(Math.random()<.35)setTimeout(()=>bubble(seatEls[i],pick(PEOPLE[s.who].thanks),'thanks',1500),250);
  complete(Math.max(20,added*1.8),golden,[SEATS[i].x,SEATS[i].y]);}
 function greetGuest(){if(!door)return;const golden=time-door.since<=door.total*.45;const free=[2,3].find(i=>!seats[i]);stats.guests++;if(free!==undefined)sit(door.who,free,100);sound.event('greet');const b=free!==undefined?seatEls[free]:null;if(b)setTimeout(()=>bubble(b,'Рақмет!','thanks',1400),350);door=null;knockAt=time+knockGap();complete(150,golden,P.door);}
@@ -1190,13 +1217,14 @@ function knockGap(){return random(14,22)/pace()*(EASY()?1.4:1);}
 
 // ---------- The world ticks
 function tickWorld(dt){
- const k=pace(),t=dayT();
+ const k=pace(),t=dayT();calm=t>=CALM;phaseBanner(t);
  // baby: comfort drains, faster when awake; Әже beside the cradle keeps it calm
  const ajeHere=elders.aje.state==='kids'||active('lullaby')||active('husband');
  const held=kelin.job&&kelin.job.type==='baby'&&kelin.job.holding;
  if(ajeHere||held){baby.content=Math.min(100,baby.content+dt*25);if(baby.state==='cry'){baby.state='awake';baby.overdue=false;}if(baby.content>60)baby.need=null;}
  else{
-  baby.content=Math.max(0,baby.content-dt*k*(baby.state==='sleep'?100/30:100/20));
+  if(calm&&baby.state!=='cry'&&!baby.need){baby.state='sleep';baby.content=Math.min(100,baby.content+dt*6);}
+  else baby.content=Math.max(0,baby.content-dt*k*(baby.state==='sleep'?100/30:100/20));
   if(!baby.need&&baby.content<=35){baby.need=baby.state==='sleep'?pick(['hunger','wet']):pick(['hunger','wet','sleepy','hunger']);if(baby.state==='sleep')baby.state='awake';}
   if(baby.content<=0&&baby.state!=='cry'){baby.state='cry';baby.cryStart=time;baby.patience=7*patienceK();baby.overdue=false;sound.event('cry');bubble(cradleEl,'Уаа-уаа!','angry',1600);}
   if(baby.state==='cry'){if(Math.random()<dt*.5)sound.event('cry');const late=time-baby.cryStart>baby.patience;if(late&&!baby.overdue){baby.overdue=true;stats.missed++;loseHeart(1,'Малыш плачет слишком долго');aje('baby');}if(late)drain(dt,'baby');}
@@ -1210,12 +1238,13 @@ function tickWorld(dt){
  // the samovar heats up again by itself
  samovar.water=Math.min(100,samovar.water+dt*samovarHeat());
  // fire and kazan
- if(!active('quickfood'))fire.fuel=Math.max(0,fire.fuel-dt*100/30*k);
+ if(!active('quickfood'))fire.fuel=Math.max(0,fire.fuel-dt*100/30*k*(calm?.4:1));
  if(fire.fuel<=0){if(!fire.outNoted){fire.outNoted=true;stats.missed++;loseHeart(1,'Огонь погас — казан остывает');aje('fireout');}drain(dt,'fire');}
  else if(!kazan.ready&&kelin.carry!=='food'){kazan.cook+=dt*100/26*k;if(kazan.cook>=100){kazan.cook=100;kazan.ready=true;kazan.readyAt=time;kazan.patience=11*patienceK();bubble(hearthEl,'Ас дайын!','thanks',1600);sound.event('ask');}}
  if(kazan.ready&&time-kazan.readyAt>kazan.patience){kazan.ready=false;kazan.cook=0;stats.missed++;sound.event('burn');score=Math.max(roundStart,score-80);loseHeart(1,'Ас күйіп кетті! Еда подгорела · −80');aje('burnt');showGain(0,P.hearth,['Күйіп кетті!','miss','подгорело'],80);}
  // tea at the dastarkhan, and small talk over kurt and tea
- seats.forEach((s,i)=>{if(!s||s.away)return;s.next-=dt*k;while(s.next<=0){s.tea=Math.max(0,s.tea-s.amount);drink(s);}
+ seats.forEach((s,i)=>{if(!s||s.away)return;if(!s.welcome){s.next-=dt*k*(calm?.35:1);while(s.next<=0){s.tea=Math.max(0,s.tea-s.amount);drink(s);}}
+  if(s.welcome){if(time-s.welcome.since>s.welcome.total){s.welcome=null;stats.missed++;loseHeart(.5,'Жаным долго ждал чая');bubble(seatEls[i],'Шай қайда, жаным?','angry',1800);}return;}
   if(s.tea<=0){s.empty+=dt;s.angryFor+=dt;if(!s.wasAngry){s.wasAngry=true;bubble(seatEls[i],pick(['Шай дайын ба?','Келін, шай құйшы!','Шай бар ма?']),'angry',1800);sound.event('grumble');}
    if(s.angryFor>=5){s.angryFor=-99;stats.missed++;loseHeart(1,PEOPLE[s.who].name+' давно сидит с пустой пиалой');}
    drain(dt,'tea');}else{s.wasAngry=false;s.angryFor=0;}
@@ -1225,12 +1254,12 @@ function tickWorld(dt){
  if(husband.state==='waiting'&&time-husband.since>husband.total){husband.state='leaving';stats.missed++;loseHeart(.5,'Жаным ушёл без узелка с едой');bubble(husbandEl,'Жарайды, кеттім.','ask',1500);}
  if(husband.state==='leaving'){husband.y+=dt*9;if(husband.y>=104)husband.state='away';}
  if(husband.state==='away'&&time>=husband.back){husband.state='coming';husband.x=P.door[0];husband.y=100;}
- if(husband.state==='coming'){const [tx,ty]=[SEATS[4].x,SEATS[4].y+12];const dx=tx-husband.x,dy=ty-husband.y,d=Math.hypot(dx,dy),v=26*dt;if(d<=v||d<1){husband.state='home';if(!seats[4])sit('zhanym',4,70);setTimeout(()=>{if(seats[4])bubble(seatEls[4],'Сәлем! Мен келдім!','thanks',1800);},150);notify('Жаным вернулся с пастбища');}else{const [wx,wy]=route([husband.x,husband.y],[tx,ty])[0];const ex=wx-husband.x,ey=wy-husband.y,e=Math.hypot(ex,ey)||1;husband.x+=ex/e*v;husband.y+=ey/e*v;husband.face=ex<0?-1:1;}}
+ if(husband.state==='coming'){const [tx,ty]=[SEATS[4].x,SEATS[4].y+12];const dx=tx-husband.x,dy=ty-husband.y,d=Math.hypot(dx,dy),v=26*dt;if(d<=v||d<1){husband.state='home';if(!seats[4]){sit('zhanym',4,0);seats[4].welcome={since:time,total:10*patienceK()};}setTimeout(()=>{if(seats[4])bubble(seatEls[4],'Сәлем! Мен келдім!','thanks',1800);},150);notify('Жаным вернулся с пастбища — сначала подай ему чай');}else{const [wx,wy]=route([husband.x,husband.y],[tx,ty])[0];const ex=wx-husband.x,ey=wy-husband.y,e=Math.hypot(ex,ey)||1;husband.x+=ex/e*v;husband.y+=ey/e*v;husband.face=ex<0?-1:1;}}
  // guests at the door (midday)
- if(!door&&time>=knockAt&&t<.72&&husband.state!=='waiting'&&dog.state!=='waiting'&&(seats[2]===null||seats[3]===null)){const who=round>=3&&Math.random()<.5?'dos':'nagashy';const w=seats.some(s=>s&&s.who===who)?(who==='dos'?'nagashy':'dos'):who;if(seats.some(s=>s&&s.who===w)||(w==='dos'&&round<3)){knockAt=time+4;}else{door={who:w,since:time,total:8*patienceK()};sound.event('knock');bubble(doorEl,'Тық-тық!','ask',1500);}}
+ if(!door&&!calm&&time>=knockAt&&t<.72&&husband.state!=='waiting'&&dog.state!=='waiting'&&(seats[2]===null||seats[3]===null)){const who=round>=3&&Math.random()<.5?'dos':'nagashy';const w=seats.some(s=>s&&s.who===who)?(who==='dos'?'nagashy':'dos'):who;if(seats.some(s=>s&&s.who===w)||(w==='dos'&&round<3)){knockAt=time+4;}else{door={who:w,since:time,total:8*patienceK()};sound.event('knock');bubble(doorEl,'Тық-тық!','ask',1500);}}
  if(door&&time-door.since>door.total){stats.missed++;loseHeart(1,PEOPLE[door.who].name+' не дождался у порога и ушёл');aje('guestleft');door=null;knockAt=time+knockGap();}
  // the dog peeks in at the door and hopes for a bite
- if(dog.state==='away'&&time>=dog.next&&!door&&husband.state!=='waiting'){dog.state='waiting';dog.since=time;dog.total=12*patienceK();setTimeout(()=>bubble(dogEl,'Ав!','ask',1200),80);}
+ if(dog.state==='away'&&!calm&&time>=dog.next&&!door&&husband.state!=='waiting'){dog.state='waiting';dog.since=time;dog.total=12*patienceK();setTimeout(()=>bubble(dogEl,'Ав!','ask',1200),80);}
  if(dog.state==='waiting'&&time-dog.since>dog.total){dog.state='away';dog.next=time+random(26,40);stats.missed++;notify('Собачка ушла голодной');}
  if(dog.state==='eating'&&time>=dog.until){dog.state='resting';dog.until=time+4;}
  if(dog.state==='resting'&&time>=dog.until){dog.state='away';dog.next=time+random(30,45);}
@@ -1238,7 +1267,7 @@ function tickWorld(dt){
 function tickToddler(dt,k){
  const T=toddler;
  if(T.state==='grandpa'){T.fun=Math.min(100,T.fun+dt*20);return;}
- if(T.state==='play'){if(active('toy')||active('husband')||kelin.job&&kelin.job.type==='toddler'){T.fun=Math.min(100,T.fun+dt*20);return;}T.fun=Math.max(0,T.fun-dt*k*100/22);if(T.fun<=0)startMischief();return;}
+ if(T.state==='play'){if(calm||active('toy')||active('husband')||kelin.job&&kelin.job.type==='toddler'){T.fun=Math.min(100,T.fun+dt*20);return;}T.fun=Math.max(0,T.fun-dt*k*100/22);if(T.fun<=0)startMischief();return;}
  if(active('toy')||active('husband')){if(T.state!=='held'){T.state='play';T.x=P.mat[0];T.y=P.mat[1];T.item=null;T.fun=100;dropJobs('toddler');}return;}
  if(T.state==='walk'){const g=T.target==='hearth'?[P.hearth[0]-9,P.hearth[1]+9]:[P.door[0]-3,P.door[1]-4];stepTo(T,g,toddlerSpeed()*dt,()=>{T.state='danger';stats.missed++;sound.event('penalty');loseHeart(1,T.target==='hearth'?'Карапуз у огня!':'Карапуз ушёл за порог!');aje(T.target==='hearth'?'fire':'door');bubble(toddlerEl,'Уа-а!','angry',1400);});}
  else if(T.state==='danger')drain(dt,'toddler');
@@ -1370,6 +1399,8 @@ function tick(dt){
  if(time>noticeUntil)say(hint());
 }
 function kelinDoing(){const j=kelin.job,acting=kelin.act>0;const what={nurse:'кормит малыша',change:j&&j.type==='toddler'?'забирает у карапуза '+(toddler.item==='ladle'?'половник':'пиалу'):'пеленает малыша',rock:'качает бесік',serve:j&&j.type==='tea'?'наливает чай':'наполняет чайник у самовара',greet:'встречает гостя',tray:'подаёт ас',give:'провожает Жаныма',feed:'кормит собачку','carry-kid':j&&j.type==='toddler'&&toddler.state==='play'?'играет с карапузом':'несёт карапуза на коврик','carry-wood':'подкидывает дрова'}[kelin.pose];return acting&&what?'Келін '+what+'…':'Келін спешит: '+TASKS[j.type].name;}
+const PHASES=[[.2,'Түс','день: гости, дела, дети'],[.64,'Кеш','вечер: Жаным идёт домой'],[CALM,'Кеш батты','вечереет — все успокаиваются']];
+function phaseBanner(t){while(phaseShown<PHASES.length&&t>=PHASES[phaseShown][0]){const [,a,b]=PHASES[phaseShown];phaseShown++;const e=phaseEl;e.querySelector('b').textContent=a;e.querySelector('small').textContent=b;e.classList.remove('show');void e.offsetWidth;e.classList.add('show');sound.event('honor');}}
 function hint(){
  if(toddler.state==='danger')return toddler.target==='hearth'?'Карапуз у огня! Скорее забери его · −'+DANGER_COST+'/с':'Карапуз за порогом! Скорее верни его · −'+DANGER_COST+'/с';
  if(baby.state==='cry'&&baby.overdue)return 'Малыш заходится плачем · −'+DANGER_COST+'/с';
@@ -1384,6 +1415,9 @@ function hint(){
  const empty=seats.find(s=>s&&!s.away&&s.tea<=0);if(empty)return PEOPLE[empty.who].name+' с пустой пиалой · −'+EMPTY_COST+'/с';
  if(dog.state==='waiting')return 'Собачка заглядывает — вынеси ей миску';
  if(kelin.job)return kelinDoing();
+ if(seats[4]&&seats[4].welcome)return 'Жаным пришёл и ждёт — подай ему чай';
+ if(seats[4]&&seats[4].wantsFood)return 'Жаным голоден — неси ас, как только будет готов';
+ if(calm)return 'Вечереет: дети засыпают, в юрте тихо — день почти прожит';
  if(elders.aje.state==='kids')return 'Әже сидит с малышом — он спокоен';
  if(elders.ata.state==='kids')return 'Ата играет с внуком в асық';
  if(fire.fuel<=35)return 'Огонь слабеет — самое время подкинуть дров (вовремя ×1,5)';
@@ -1406,7 +1440,7 @@ function render(){
  if(!baby)return;
  const playing=state==='playing',t=dayT();
  // the sun: light from the shanyrak crosses the floor from the west (morning) to the east (evening)
- const ang=Math.PI*t,edge=Math.max(0,1-Math.min(t,1-t)/.18),r=30+10*edge,sx=50+r*Math.sin(ang)*.9,sy=46-r*Math.cos(ang);sunEl.style.left=sx+'%';sunEl.style.top=sy+'%';sunEl.style.setProperty('--rot',(-ang*180/Math.PI)+'deg');sunEl.style.setProperty('--stretch',(1+edge*.7).toFixed(3));{const dx=sx-50,dy=sy+8,len=Math.hypot(dx,dy);beamEl.style.height=len+'%';beamEl.style.transform='translateX(-50%) rotate('+(-Math.atan2(dx,dy)*180/Math.PI)+'deg)';}yard.style.setProperty('--dusk',Math.max(0,(t-.7)/.3).toFixed(3));yard.style.setProperty('--dawn',Math.max(0,1-t/.15).toFixed(3));
+ const ang=Math.PI*t,edge=Math.max(0,1-Math.min(t,1-t)/.18),r=30+10*edge,sx=50+r*Math.sin(ang)*.9,sy=46-r*Math.cos(ang);sunEl.style.left=sx+'%';sunEl.style.top=sy+'%';{const col=t<.2?[255,196,120,.75-t*1.5]:t<.64?[255,248,220,.35]:t<CALM?[255,150,90,.28]:[90,110,170,.35];doorLight.style.setProperty('--dl','rgba('+col.join(',')+')');doorLight.style.setProperty('--dlen',(t<.2?1.25-t:t<.64?.6:.45).toFixed(2));}sunEl.style.setProperty('--rot',(-ang*180/Math.PI)+'deg');sunEl.style.setProperty('--stretch',(1+edge*.7).toFixed(3));{const dx=sx-50,dy=sy+8,len=Math.hypot(dx,dy);beamEl.style.height=len+'%';beamEl.style.transform='translateX(-50%) rotate('+(-Math.atan2(dx,dy)*180/Math.PI)+'deg)';}yard.style.setProperty('--dusk',Math.max(0,(t-.7)/.3).toFixed(3));yard.style.setProperty('--dawn',Math.max(0,1-t/.15).toFixed(3));
  // cradle and baby
  const holding=kelin.job&&kelin.job.type==='baby'&&kelin.job.holding;const rocking=kelin.job&&kelin.job.type==='baby'&&kelin.pose==='rock';
  const ajeHere=elders.aje.state==='kids';
@@ -1428,8 +1462,8 @@ function render(){
  hearthEl.querySelector('.u-fuel b').style.width=fire.fuel+'%';hearthEl.querySelector('.u-cook b').style.width=kazan.cook+'%';
  setRing('food',kazan.ready?1-(time-kazan.readyAt)/kazan.patience:null,[P.hearth[0]+13,P.hearth[1]-2]);
  woodEl.classList.toggle('wanted',fire.fuel<=35);dishEl.hidden=!(kazan.servedUntil>time);
- meter(fireMeter,fire.fuel/100,null,fire.fuel<=0?'🔥 погас!':'🔥 '+Math.ceil(fire.fuel)+'%');place(fireMeter,[P.hearth[0]-17,P.hearth[1]+2]);
- meter(cookMeter,kazan.ready?1-(time-kazan.readyAt)/kazan.patience:kazan.cook/100,null,kazan.ready?'🍲 готово!':'🍲 '+Math.floor(kazan.cook)+'%');cookMeter.classList.toggle('low',kazan.ready);cookMeter.classList.toggle('ready',kazan.ready);place(cookMeter,[P.hearth[0]+17,P.hearth[1]+2]);
+ meter(fireMeter,fire.fuel/100,null,fire.fuel<=0?'🔥 погас!':'🔥 '+Math.ceil(fire.fuel)+'%');place(fireMeter,[P.hearth[0]+18,P.hearth[1]-3]);
+ meter(cookMeter,kazan.ready?1-(time-kazan.readyAt)/kazan.patience:1-kazan.cook/100,null,kazan.ready?'🍲 готово!':'🍲 '+Math.ceil(100-kazan.cook)+'%');cookMeter.classList.remove('low');cookMeter.classList.toggle('low',kazan.ready);cookMeter.classList.toggle('ready',kazan.ready);place(cookMeter,[P.hearth[0]+18,P.hearth[1]+4]);
  meter(samovarMeter,samovar.water/100,null,'♨ '+Math.floor(samovar.water)+'%');samovarMeter.classList.toggle('low',samovar.water<30);place(samovarMeter,[P.samovar[0]-1,P.samovar[1]+12]);samovarHit.classList.toggle('boiling',samovar.water>=30);
  // seats
  seatEls.forEach((b,i)=>{const s=seats[i];b.hidden=!s||s.away;if(!s||s.away){cupEls[i].hidden=true;return;}const p=PEOPLE[s.who];const face=b.querySelector('.u-face');face.style.backgroundImage='var(--mood'+p.mood+')';spriteAt(face,s.tea<=0?2:s.tea<=35?1:0,3);b.querySelector('small').textContent=p.name;b.classList.toggle('golden',s.tea>0&&s.tea<=35);b.classList.toggle('angry',s.tea<=0);b.classList.toggle('selected',!!(kelin.job&&kelin.job.type==='tea'&&kelin.job.seat===i));const cup=cupEls[i];cup.hidden=false;cup.style.setProperty('--lvl',s.tea);cup.classList.toggle('golden',s.tea>0&&s.tea<=35);cup.classList.toggle('angry',s.tea<=0);cup.querySelector('em').textContent=s.tea<=0?'💢':Math.ceil(s.tea)+'%';b.setAttribute('aria-label',p.name+': '+Math.ceil(s.tea)+'% чая. Налить');});
@@ -1439,7 +1473,7 @@ function render(){
  setRing('door',door?1-(time-door.since)/door.total:null,[P.guestWait[0]+19,P.guestWait[1]-14]);
  const hs=husband.state;husbandEl.hidden=!(hs==='waiting'||hs==='leaving'||hs==='coming');
  if(!husbandEl.hidden){spriteAt(husbandEl,hs==='waiting'?0:hs==='leaving'?1:2,3);place(husbandEl,[husband.x,husband.y]);husbandEl.style.zIndex=Math.round(husband.y*10);husbandEl.style.setProperty('--face',hs==='coming'?(husband.face||1):1);husbandEl.classList.toggle('fading',hs==='leaving');}
- setRing('husband',hs==='waiting'?1-(time-husband.since)/husband.total:null,[husband.x+9,husband.y-24]);
+ setRing('husband',hs==='waiting'?1-(time-husband.since)/husband.total:null,[husband.x+9,husband.y-24]);{const z=seats[4];setRing('welcome',z&&z.welcome?1-(time-z.welcome.since)/z.welcome.total:null,[SEATS[4].x+9,SEATS[4].y-6]);zNeed.hidden=!(z&&z.wantsFood&&!z.away);}
  dogEl.hidden=dog.state==='away';if(!dogEl.hidden){spriteAt(dogEl,{waiting:0,eating:2,resting:3}[dog.state]||1,4);place(dogEl,P.dog);}
  bowlEl.hidden=dog.state!=='eating';place(bowlEl,[P.dog[0]-6,P.dog[1]]);
  setRing('dog',dog.state==='waiting'?1-(time-dog.since)/dog.total:null,[P.dog[0]+9,P.dog[1]-13]);
@@ -1479,7 +1513,7 @@ function renderThumbs(){const bonus=state==='bonus'||state==='bonus-paused';thum
  if(type==='baby'){level=baby.content;if(baby.state==='cry'){urgent=true;text='Плачет!';}else if(baby.need){soon=true;text=NEEDS[baby.need].text;}else text=elders.aje.state==='kids'?'С бабушкой':baby.state==='sleep'?'Спит':'Доволен';}
  if(type==='toddler'){const T=toddler;if(T.state==='walk'){level=100*(1-(time-T.walkStart)/T.walkTotal);urgent=true;text=T.target==='hearth'?'К огню!':'К двери!';}else if(T.state==='danger'){level=0;urgent=true;text='Опасно!';}else if(T.state==='mischief'){level=100*(1-(time-T.mischiefStart)/(10*patienceK()));urgent=true;text=T.item?'Схватил!':'Шалит';}else{level=T.fun;soon=T.state==='play'&&T.fun<=35;text=T.state==='held'?'На руках':T.state==='grandpa'?'С дедушкой':soon?'Скучает':'Играет';}}
  if(type==='fire'){level=fire.fuel;soon=fire.fuel<=35&&fire.fuel>0;urgent=fire.fuel<=0;text=fire.fuel<=0?'Погас!':soon?'Дрова!':'Горит';}
- if(type==='food'){level=kazan.ready?100*(1-(time-kazan.readyAt)/kazan.patience):kazan.cook;urgent=kazan.ready;text=kazan.ready?'Ас дайын!':'Варится '+Math.floor(kazan.cook)+'%';}
+ if(type==='food'){level=kazan.ready?100*(1-(time-kazan.readyAt)/kazan.patience):100-kazan.cook;urgent=kazan.ready;text=kazan.ready?'Ас дайын!':'Ещё '+Math.ceil(100-kazan.cook)+'%';}
  if(type==='tea'){const i=teaChoice(),s=seats[i];level=s?s.tea:100;soon=!!s&&s.tea<=35&&s.tea>0;urgent=!!s&&s.tea<=0;text=s?PEOPLE[s.who].name+' '+Math.ceil(s.tea)+'%':'Все с чаем';}
  if(type==='door'){const who=doorWho();if(who==='husband'){level=100*(1-(time-husband.since)/husband.total);urgent=true;text='Жаным';}else if(who==='guest'){level=100*(1-(time-door.since)/door.total);urgent=true;text=PEOPLE[door.who].name;}else if(who==='dog'){level=100*(1-(time-dog.since)/dog.total);soon=true;text='Собачка';}else text='Никого';}
  const current=kelin.job&&kelin.job.type===type,q=queued(type);if(current)text='Келін идёт';else if(q>=0)text='Очередь '+(q+1);
@@ -1632,7 +1666,7 @@ addEventListener('pagehide',()=>sound.hush());
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&(state==='playing'||state==='countdown'||state==='bonus'))togglePause();});
 
 // Test hook for bots and screenshots (read state, press task buttons).
-window.__ulger={bonus:()=>startBonus(),get:()=>({state,round,score,roundStart,goal:goal(),time,dayT:dayT(),mood,attempts,baby:{...baby},toddler:{...toddler},fire:{...fire},kazan:{...kazan},door:door&&{...door},husband:husband&&{...husband},dog:dog&&{...dog},doorWho:husband?doorWho():null,seats:seats&&seats.map(s=>s&&{...s}),kelin:kelin&&{x:kelin.x,y:kelin.y,job:kelin.job&&kelin.job.type,queue:kelin.queue.map(q=>q.type),teapot:kelin.teapot,carry:kelin.carry},inventory:{...inventory},stats:{...stats}}),request,useBoost,reset:()=>{gameMode=gameMode;reset();},setMode:m=>{gameMode=m;},jump:r=>{round=r-1;roundStart=score;resumeRound();},force:(what)=>{if(what.startsWith('t:')){time=dayStart+DAY*parseFloat(what.slice(2));nextBreak=dayStart+DAY;}if(what==='win'){score=roundStart+goal();time=nextBreak-.05;}if(what==='door'){if(husband.state==='waiting'){husband.state='away';}door={who:'nagashy',since:time,total:7*patienceK()};}if(what==='walk'){toddler.fun=0;}if(what==='cry'){baby.content=30;}if(what==='food'){kazan.cook=99.9;}if(what==='dog'){dog.next=time;}if(what==='evening'){time=dayStart+DAY*.7;nextBreak=dayStart+DAY;husband.state='away';husband.back=time+1;}if(what==='elders'){elders.aje.next=time;elders.ata.next=time;}if(what==='low'){fire.fuel=30;seats.forEach(s=>{if(s)s.tea=25;});}},skipTour:()=>{try{localStorage.setItem(TOUR_KEY,'done');}catch(e){}},next:()=>{if(state==='bonus-ready'||state==='bonus-result')resumeRound();else if(state==='round-story')beginCountdown();else if(state==='round-failed')retryRound();}};
+window.__ulger={bonus:()=>startBonus(),get:()=>({state,round,score,roundStart,goal:goal(),time,dayT:dayT(),mood,attempts,baby:{...baby},toddler:{...toddler},fire:{...fire},kazan:{...kazan},door:door&&{...door},husband:husband&&{...husband},dog:dog&&{...dog},doorWho:husband?doorWho():null,seats:seats&&seats.map(s=>s&&{...s}),kelin:kelin&&{x:kelin.x,y:kelin.y,job:kelin.job&&kelin.job.type,queue:kelin.queue.map(q=>q.type),teapot:kelin.teapot,carry:kelin.carry},inventory:{...inventory},stats:{...stats}}),request,useBoost,reset:()=>{gameMode=gameMode;reset();},setMode:m=>{gameMode=m;},jump:r=>{round=r-1;roundStart=score;resumeRound();},force:(what)=>{if(what==='boost'){for(const id in config)inventory[id]=2;}if(what.startsWith('t:')){time=dayStart+DAY*parseFloat(what.slice(2));nextBreak=dayStart+DAY;}if(what==='win'){score=roundStart+goal();time=nextBreak-.05;}if(what==='door'){if(husband.state==='waiting'){husband.state='away';}door={who:'nagashy',since:time,total:7*patienceK()};}if(what==='walk'){toddler.fun=0;}if(what==='cry'){baby.content=30;}if(what==='food'){kazan.cook=99.9;}if(what==='dog'){dog.next=time;}if(what==='evening'){time=dayStart+DAY*.7;nextBreak=dayStart+DAY;husband.state='away';husband.back=time+1;}if(what==='elders'){elders.aje.next=time;elders.ata.next=time;}if(what==='low'){fire.fuel=30;seats.forEach(s=>{if(s)s.tea=25;});}},skipTour:()=>{try{localStorage.setItem(TOUR_KEY,'done');}catch(e){}},next:()=>{if(state==='bonus-ready'||state==='bonus-result')resumeRound();else if(state==='round-story')beginCountdown();else if(state==='round-failed')retryRound();}};
 
 loadRecord();$('[data-record]').textContent='Рекорд: '+fmt(record);
 function frame(now){requestAnimationFrame(frame);const dt=last?Math.min((now-last)/1000,.1):0;last=now;let remaining=dt;while(remaining>0){const step=Math.min(remaining,1/60);tick(step);remaining-=step;}sound.update(state,state==='playing'&&!!baby&&danger());render();}
