@@ -990,6 +990,16 @@ html,body,#kelin-game,#kelin-game *{touch-action:manipulation}
 #kelin-game .yard{-webkit-mask-image:none!important;mask-image:none!important}
 /* the shaft starts at the shanyrak (the dome's crown, above the hearth) */
 #kelin-game .u-beam{top:38%!important;left:50%!important}
+/* the sun spot and its shaft follow the strength of the day; the shaft starts thin at the shanyrak */
+#kelin-game .u-sun{opacity:calc(.75 * var(--sunk,1))!important}
+#kelin-game .u-beam{opacity:calc(.9 * var(--sunk,1))!important;width:17%!important;clip-path:polygon(44% 0,56% 0,100% 100%,0 100%)!important}
+#kelin-game .u-sun{width:17%!important}
+/* the kazan itself shows that the food is ready: a golden glow pulses around it and the steam puffs faster; the firewood only glows (no jumping) when the fire is low */
+#kelin-game .u-wood.wanted{animation:none!important;filter:drop-shadow(0 0 7px #ffc53a) drop-shadow(0 4px 4px #000a)!important}
+#kelin-game .u-hearth::before{content:'';position:absolute;left:50%;top:28%;width:120%;height:70%;transform:translate(-50%,-50%);border-radius:50%;pointer-events:none;opacity:0;box-shadow:0 0 0 3px #ffe27a,0 0 22px 8px rgba(255,210,90,.75);transition:opacity .3s}
+#kelin-game .u-hearth.ready::before{opacity:1;animation:u-ready 0.9s ease-in-out infinite}
+@keyframes u-ready{0%,100%{transform:translate(-50%,-50%) scale(.92);opacity:.65}50%{transform:translate(-50%,-50%) scale(1.06);opacity:1}}
+#kelin-game .u-hearth.ready .u-steam{animation-duration:.55s!important;opacity:1!important;width:60%!important;height:60%!important;top:-6%!important}
 </style>
 <section class="intro splash" aria-label="Вступление и главное меню"><div class="intro-top"><span>13TH DEV STUDIO</span><button type="button" class="intro-skip">Пропустить</button></div><div class="studio-logo">13<small>GAMES</small></div><div class="intro-art" aria-hidden="true"><div class="intro-person"></div><div class="intro-person"></div><div class="intro-person"></div><div class="intro-person"></div><div class="intro-kelin"></div></div><h1 data-intro-title>КЕЛІН</h1><p class="intro-copy"></p><div class="intro-progress"></div><button type="button" class="play intro-next">Дальше</button><div class="intro-footer">ДЕТИ, КАЗАН, ЧАЙ И ГОСТИ</div></section>
 <header class="top"><div><div class="brand">КЕЛІН</div><div class="sub">БӘРІНЕ ҮЛГЕР!</div></div><button class="pause" type="button" disabled>Пауза</button></header>
@@ -1545,7 +1555,7 @@ function render(){
  if(!baby)return;
  const playing=state==='playing',t=dayT();
  // the sun: light from the shanyrak crosses the floor from the west (morning) to the east (evening)
- const ang=Math.PI*t,edge=Math.max(0,1-Math.min(t,1-t)/.18),r=30+10*edge,sx=50+r*Math.sin(ang)*.8,sy=44-r*Math.cos(ang)*.85;sunEl.style.left=sx+'%';sunEl.style.top=sy+'%';{const col=t<.2?[255,196,120,.75-t*1.5]:t<.64?[255,248,220,.35]:t<CALM?[255,150,90,.28]:[90,110,170,.35];doorLight.style.setProperty('--dl','rgba('+col.join(',')+')');doorLight.style.setProperty('--dlen',(t<.2?1.25-t:t<.64?.6:.45).toFixed(2));}sunEl.style.setProperty('--rot',(-ang*180/Math.PI)+'deg');sunEl.style.setProperty('--stretch',(1+edge*.7).toFixed(3));{const dx=sx-SHANYRAK[0],dy=sy-SHANYRAK[1],len=Math.hypot(dx,dy);beamEl.style.height=len+'%';beamEl.style.transform='translateX(-50%) rotate('+(-Math.atan2(dx,dy)*180/Math.PI)+'deg)';}yard.style.setProperty('--night',Math.max(0,(t-CALM)/(1-CALM)).toFixed(3));moonEl.style.left=(38+t*6)+'%';moonEl.style.top='58%';yard.style.setProperty('--dusk',Math.max(0,(t-.7)/.3).toFixed(3));yard.style.setProperty('--dawn',Math.max(0,1-t/.15).toFixed(3));
+ const ang=Math.PI*t,edge=Math.max(0,1-Math.min(t,1-t)/.18),r=30+10*edge,sx=50+r*Math.sin(ang)*.8,sy=44-r*Math.cos(ang)*.85;sunEl.style.left=sx+'%';sunEl.style.top=sy+'%';{const col=t<.2?[255,196,120,.75-t*1.5]:t<.64?[255,248,220,.35]:t<CALM?[255,150,90,.28]:[90,110,170,.35];doorLight.style.setProperty('--dl','rgba('+col.join(',')+')');doorLight.style.setProperty('--dlen',(t<.2?1.25-t:t<.64?.6:.45).toFixed(2));}sunEl.style.setProperty('--rot',(-ang*180/Math.PI)+'deg');sunEl.style.setProperty('--stretch',(1+edge*.7).toFixed(3));{const dx=sx-SHANYRAK[0],dy=sy-SHANYRAK[1],len=Math.hypot(dx,dy);beamEl.style.height=len+'%';beamEl.style.transform='translateX(-50%) rotate('+(-Math.atan2(dx,dy)*180/Math.PI)+'deg)';}{const up=clamp(t/.45,0,1),down=clamp((CALM-t)/(CALM-.6),0,1),k=up*up*(3-2*up)*down*down*(3-2*down);yard.style.setProperty('--sunk',k.toFixed(3));}yard.style.setProperty('--night',Math.max(0,(t-CALM)/(1-CALM)).toFixed(3));moonEl.style.left=(38+t*6)+'%';moonEl.style.top='58%';yard.style.setProperty('--dusk',Math.max(0,(t-.7)/.3).toFixed(3));yard.style.setProperty('--dawn',Math.max(0,1-t/.15).toFixed(3));
  // cradle and baby
  const holding=kelin.job&&kelin.job.type==='baby'&&kelin.job.holding;const rocking=kelin.job&&kelin.job.type==='baby'&&kelin.pose==='rock';
  const ajeHere=elders.aje.state==='kids';
