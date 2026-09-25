@@ -1297,6 +1297,7 @@ function putDownToddler(){if(toddler.state!=='held')return;kelin.carry=null;todd
 function addWood(){kelin.carry=null;const golden=fire.fuel>0&&fire.fuel<=35,wasting=fire.fuel>70;const before=fire.fuel;fire.fuel=100;fire.outNoted=false;sound.event('wood');stats.fire++;if(wasting){showGain(0,P.hearth,['Артық!','miss','лишнее']);return;}complete(before<=0?60:100,golden,P.hearth);}
 function takeFood(){if(!kazan.ready)return;kazan.ready=false;kazan.cook=0;kelin.carry='food';kazan.servedGolden=time-kazan.readyAt<=kazan.patience*.45;sound.event('pickup');}
 function serveFood(){if(kelin.carry!=='food')return;kelin.carry=null;kazan.servedUntil=time+25;const z=seats[4];if(z&&z.wantsFood){z.wantsFood=false;score+=100;setTimeout(()=>{if(seats[4])bubble(seatEls[4],'Рақмет! Дәмді екен!','thanks',1600);},400);}const eaters=seats.filter(s=>s&&!s.away).length;stats.food++;sound.event('serve');const b=seatEls[seats.findIndex(s=>s&&!s.away)];if(b)bubble(b,'Астарыңыз дәмді болсын!','thanks',1500);complete(200+eaters*40,kazan.servedGolden,[50,20]);}
+function afterWelcome(s,i){s.welcome=null;if(kazan.servedUntil>time){s.wantsFood=false;score+=50;setTimeout(()=>{if(seats[i]===s)bubble(seatEls[i],'Рақмет! Дәмді екен!','thanks',1600);},2600);}else{s.wantsFood=true;s.foodSince=time;setTimeout(()=>{if(seats[i]===s&&s.wantsFood)bubble(seatEls[i],'Ас бар ма?','ask',1600);},2600);}}
 function fillTeapot(){kelin.teapot=4;samovar.water=Math.max(0,samovar.water-30);sound.event('cup');}
 function samovarWait(){return .6+Math.max(0,30-samovar.water)/samovarHeat();}
 function samovarHeat(){return 100/28*pace();}
@@ -1305,7 +1306,7 @@ function pourTea(i){const s=seats[i];if(!s||s.away)return;
  if(!s.welcome&&s.tea>=tooFull()){stats.declined++;bubble(seatEls[i],'✋ Жетеді, рақмет!','angry',1500);sound.event('penalty');score=Math.max(roundStart,score-40);showGain(0,[SEATS[i].x,SEATS[i].y],['Артық!','miss','лишнее'],40);combo=0;lastSuccess=-Infinity;if(round>=2&&!EASY())loseHeart(.5,'Пиала почти полная');return;}
  if(round>=3&&!EASY()&&!s.welcome){const elder=seats.findIndex((o,j)=>o&&!o.away&&j!==i&&PEOPLE[o.who].rank<PEOPLE[s.who].rank&&o.tea<=35);if(elder>=0){stats.order++;loseHeart(.5,'Сначала старшим: '+PEOPLE[seats[elder].who].name+' ждёт');showGain(0,[SEATS[i].x,SEATS[i].y],['Алдымен үлкенге!','miss','сначала старшим']);setTimeout(()=>aje('order'),400);}}
  if(door&&round>=2&&!EASY()&&time-door.since>1.5){loseHeart(.5,'Гость ждёт у порога, а келін занята чаем');setTimeout(()=>aje('guest'),300);}
- const welcome=s.welcome;if(welcome){s.welcome=null;s.wantsFood=true;s.foodSince=time;setTimeout(()=>{if(seats[i]&&seats[i].wantsFood)bubble(seatEls[i],'Ас бар ма?','ask',1600);},2600);}
+ const welcome=s.welcome;if(welcome)afterWelcome(s,i);
  const added=100-s.tea,golden=welcome?time-welcome.since<=welcome.total*.45:s.tea>0&&s.tea<=35;if(welcome){score+=100;setTimeout(()=>bubble(seatEls[i],'Рақмет, жаным!','thanks',1500),250);}s.tea=100;s.empty=0;s.angryFor=0;kelin.teapot=Math.max(0,kelin.teapot-1);stats.tea++;sound.event('cup');
  if(Math.random()<.35)setTimeout(()=>bubble(seatEls[i],pick(PEOPLE[s.who].thanks),'thanks',1500),250);
  complete(Math.max(20,added*1.8),golden,[SEATS[i].x,SEATS[i].y]);}
@@ -1418,7 +1419,7 @@ function reward(){
 function calmBaby(){baby.content=100;baby.need=null;baby.overdue=false;if(baby.state==='cry')baby.state='sleep';}
 function calmToddler(){if(toddler.state==='held'||toddler.state==='grandpa')return;toddler.state='play';toddler.x=P.mat[0];toddler.y=P.mat[1];toddler.item=null;toddler.fun=100;}
 function useBoost(id){if(state!=='playing'||!(inventory[id]>0)||active(id))return;
- if(id==='feast'){if(seats.every(s=>!s||s.away||s.tea>=95)){notify('Все пиалы полны — сохраним бустер');return;}seats.forEach(s=>{if(s&&!s.away){s.tea=100;s.empty=0;s.angryFor=0;if(s.welcome){s.welcome=null;s.wantsFood=true;}}});notify('🫖 Всем чаю! Все пиалы полны');}
+ if(id==='feast'){if(seats.every(s=>!s||s.away||s.tea>=95)){notify('Все пиалы полны — сохраним бустер');return;}seats.forEach((s,i)=>{if(s&&!s.away){s.tea=100;s.empty=0;s.angryFor=0;if(s.welcome)afterWelcome(s,i);}});notify('🫖 Всем чаю! Все пиалы полны');}
  else if(id==='quickfood'){if(kazan.ready||kelin.carry==='food'){notify('Ас уже готов — отнеси на дастархан');return;}kazan.cook=100;kazan.ready=true;kazan.readyAt=time;kazan.patience=13*patienceK();fire.fuel=100;fire.outNoted=false;notify('🍲 Ас дайын! Казан готов, огонь полный');}
  else if(id==='husband'){effects.husband=time+config.husband.duration;calmBaby();calmToddler();dropJobs('baby');if(kelin.carry!=='toddler')dropJobs('toddler');notify('Жаным присматривает за детьми · 10 секунд');setTimeout(()=>aje('husband'),900);}
  else if(id==='lullaby'){effects.lullaby=time+config.lullaby.duration;calmBaby();baby.state='sleep';dropJobs('baby');notify('Әже поёт колыбельную — малыш спит 20 секунд');}
@@ -1442,7 +1443,7 @@ function ajeVerdict(){const r=round;return r<=1?['Үйрене бер, қызы�
 function finalResult(){state='over';saveRecord();const v=ajeVerdict();show('Әже: «'+v[0]+'»','('+v[1]+') Итого за игру: '+fmt(score)+' очков, дней прожито: '+(round-1)+'.'+statsLine(),'Играть снова',reset,'Главный экран',mainMenu,v[2]);overlay.firstChild.classList.add('final');render();}
 function finish(){sound.stopMusic();sound.event('over');pause.disabled=true;say('Әже расстроилась — день не удался');if(!revived){state='chance';show('Второй шанс?',fmt(score)+' очков. Сердца Әже кончились: дети плакали, огонь гас, гости ждали. Один раз за игру можно продолжить — Әже даст ещё 3 ♥.','♥ Продолжить',revive,'Закончить игру',finalResult,'kelin:1');}else finalResult();}
 function revive(){if(state!=='chance'||revived)return;revived=true;mood=3;calmWorld();beginCountdown();}
-function calmWorld(){if(kelin.job)kelin.job.holding=false;kelin.carry=null;kelin.pose='stand';kelin.path=[];kelin.job=null;kelin.queue=[];if(!kazan.ready&&kazan.cook<=0)kazan.cook=30;calmBaby();baby.state='sleep';toddler.state='play';calmToddler();fire.fuel=100;fire.outNoted=false;seats.forEach(s=>{if(s){s.tea=100;s.angryFor=0;if(s.welcome){s.welcome=null;s.wantsFood=true;}}});if(door){door=null;knockAt=time+knockGap();}}
+function calmWorld(){if(kelin.job)kelin.job.holding=false;kelin.carry=null;kelin.pose='stand';kelin.path=[];kelin.job=null;kelin.queue=[];if(!kazan.ready&&kazan.cook<=0)kazan.cook=30;calmBaby();baby.state='sleep';toddler.state='play';calmToddler();fire.fuel=100;fire.outNoted=false;seats.forEach((s,i)=>{if(s){s.tea=100;s.angryFor=0;if(s.welcome)afterWelcome(s,i);}});if(door){door=null;knockAt=time+knockGap();}}
 let countdownLeft=0,countdownNumber=3;
 function beginCountdown(){countdownLeft=3;countdownNumber=3;state='countdown';overlay.hidden=true;pause.disabled=false;pause.textContent='Пауза';sound.ensure();sound.event('count');notify(round+'-күн · день '+round+' — приготовься');render();}
 function reset(){
