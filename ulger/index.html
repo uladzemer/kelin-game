@@ -859,6 +859,22 @@ html,body{margin:0!important;padding:0!important;background:#120c08!important;ov
 
 /* the sunlit shanyrak pattern on the floor; it climbs the wall in the morning and in the evening */
 #kelin-game .u-sun{width:24%;aspect-ratio:1;background:url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20viewBox%3D%270%200%20100%20100%27%3E%3Cdefs%3E%3CradialGradient%20id%3D%27g%27%3E%3Cstop%20offset%3D%270%27%20stop-color%3D%27%23fff7d6%27/%3E%3Cstop%20offset%3D%27.75%27%20stop-color%3D%27%23ffe7a6%27/%3E%3Cstop%20offset%3D%271%27%20stop-color%3D%27%23ffd98a%27/%3E%3C/radialGradient%3E%3Cmask%20id%3D%27m%27%3E%3Ccircle%20cx%3D%2750%27%20cy%3D%2750%27%20r%3D%2743%27%20fill%3D%27white%27/%3E%3Cg%20stroke%3D%27black%27%20stroke-width%3D%274.5%27%20fill%3D%27none%27%20stroke-linecap%3D%27round%27%3E%3Cpath%20d%3D%27M9%2036%20Q50%2027%2091%2036%27/%3E%3Cpath%20d%3D%27M6%2050%20Q50%2041%2094%2050%27/%3E%3Cpath%20d%3D%27M9%2064%20Q50%2055%2091%2064%27/%3E%3Cpath%20d%3D%27M36%209%20Q27%2050%2036%2091%27/%3E%3Cpath%20d%3D%27M50%206%20Q41%2050%2050%2094%27/%3E%3Cpath%20d%3D%27M64%209%20Q55%2050%2064%2091%27/%3E%3C/g%3E%3Ccircle%20cx%3D%2750%27%20cy%3D%2750%27%20r%3D%2743%27%20fill%3D%27none%27%20stroke%3D%27black%27%20stroke-width%3D%275%27/%3E%3C/mask%3E%3C/defs%3E%3Ccircle%20cx%3D%2750%27%20cy%3D%2750%27%20r%3D%2745%27%20fill%3D%27url%28%23g%29%27%20mask%3D%27url%28%23m%29%27/%3E%3C/svg%3E") center/contain no-repeat!important;transform:translate(-50%,-50%) rotate(var(--rot,0deg)) scale(1,var(--stretch,1));opacity:calc(.8 - var(--dusk,0) * .45);filter:blur(.6px);border-radius:0}
+
+/* v6: pialas on the dastarkhan; the tea is the surface you see inside the bowl: an oval that shrinks and sinks as it is drunk */
+#kelin-game .u-cup{position:absolute!important;margin:0!important;width:calc(34px * var(--u))!important;right:auto!important;bottom:auto!important;transform:translate(-50%,-50%);z-index:620;padding:0;border:0;background:var(--piala-empty) center/contain no-repeat;filter:drop-shadow(0 2px 2px #000a)}
+#kelin-game .u-cup[hidden]{display:none}
+#kelin-game .u-cup i{all:unset}
+#kelin-game .u-tea{position:absolute;inset:0;clip-path:ellipse(46% 14% at 50% 22.5%);pointer-events:none}
+#kelin-game .u-tea i{position:absolute;left:50%;top:calc(35% - var(--lvl,100) * .13%);width:calc(38% + var(--lvl,100) * .56%);aspect-ratio:3.3;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(ellipse at 50% 40%,#e9b57a,#c98a4a 60%,#a86a30);box-shadow:inset 0 -1px 2px #7a4a1a88}
+#kelin-game .u-cup em{position:absolute;left:50%;bottom:-38%;transform:translateX(-50%);font:800 calc(9px * var(--u)) 'Rubik',sans-serif;font-style:normal;color:#fff;text-shadow:0 1px 2px #000,0 0 4px #000;white-space:nowrap}
+#kelin-game .u-cup.golden{filter:drop-shadow(0 0 5px #ffc53a) drop-shadow(0 2px 2px #000a)}
+#kelin-game .u-cup.golden em{color:#ffe27a}
+#kelin-game .u-cup.angry{filter:drop-shadow(0 0 5px #ff3b2a) drop-shadow(0 2px 2px #000a)}
+#kelin-game .u-bubble.below{transform:translate(-50%,0) scale(.6)}
+#kelin-game .u-bubble.below.show{transform:translate(-50%,0) scale(1)}
+/* the shanyrak light: softer, and it fades as the evening (Кеш) comes */
+#kelin-game .u-sun{opacity:calc(.5 - var(--dusk,0) * .42)!important}
+#kelin-game .u-beam{opacity:calc(.8 - var(--dusk,0) * .7)}
 </style>
 <section class="intro splash" aria-label="Вступление и главное меню"><div class="intro-top"><span>13TH DEV STUDIO</span><button type="button" class="intro-skip">Пропустить</button></div><div class="studio-logo">13<small>GAMES</small></div><div class="intro-art" aria-hidden="true"><div class="intro-person"></div><div class="intro-person"></div><div class="intro-person"></div><div class="intro-person"></div><div class="intro-kelin"></div></div><h1 data-intro-title>КЕЛІН</h1><p class="intro-copy"></p><div class="intro-progress"></div><button type="button" class="play intro-next">Дальше</button><div class="intro-footer">ДЕТИ, КАЗАН, ЧАЙ И ГОСТИ</div></section>
 <header class="top"><div><div class="brand">КЕЛІН</div><div class="sub">БӘРІНЕ ҮЛГЕР!</div></div><button class="pause" type="button" disabled>Пауза</button></header>
@@ -956,7 +972,7 @@ const ZONE={x0:5,x1:31,y0:50,y1:80};
 const GRABS=[{x:8,y:50,item:'piala'},{x:31,y:54,item:'ladle'},{x:22,y:80,item:'piala'}];
 // Seats around the dastarkhan (historical order: the tor, opposite the door, is for the elders):
 // 0 Ата and 1 Әже at the sides, 2 and 3 for guests at the back, 4 for Жаным in front.
-const SEATS=[{x:27,y:21,stand:[21,34]},{x:73,y:21,stand:[79,34]},{x:38,y:9,stand:[27,13]},{x:62,y:9,stand:[73,13]},{x:50,y:32,stand:[40,37]}];
+const SEATS=[{x:25,y:21,stand:[21,34],cup:[38,22]},{x:75,y:21,stand:[79,34],cup:[62,22]},{x:37,y:8,stand:[26,13],cup:[43,15]},{x:63,y:8,stand:[74,13],cup:[57,15]},{x:50,y:34,stand:[40,38],cup:[50,27]}];
 const PEOPLE={
  ata:{name:'Ата',mood:0,rank:1,sip:14,every:4.6,thanks:['Рақмет, қызым!','Көп жаса!'],talk:['Баяғыда біздің ауылда…','Шіркін, шай!','Құрт алыңыз.']},
  aje:{name:'Әже',mood:3,rank:1,sip:11,every:4,thanks:['Рақмет, қызым!','Бәрекелді!'],talk:['Құрт алыңыз.','Шіркін, шай!','Балапаным ұйықтап жатыр ма?']},
@@ -1034,15 +1050,16 @@ const bowlEl=el('u-bowl');
 const ajeEl=el('u-elder aje');const ataEl=el('u-elder ata');
 const kelinEl=el('u-kelin');kelinEl.innerHTML='<i class="u-body"></i><span class="u-pot" title="Чайник"></span>';
 const helperEl=el('u-helper');
-const seatEls=SEATS.map((s,i)=>{const b=hit('u-seat','Место '+i);b.dataset.seat=i;b.innerHTML='<i class="u-face"></i><small></small><span class="u-cup"><i></i><em></em></span>';b.style.left=s.x+'%';b.style.top=s.y+'%';return b;});
+const seatEls=SEATS.map((s,i)=>{const b=hit('u-seat','Место '+i);b.dataset.seat=i;b.innerHTML='<i class="u-face"></i><small></small>';b.style.left=s.x+'%';b.style.top=s.y+'%';return b;});
+const cupEls=SEATS.map((s,i)=>{const c=hit('u-cup','Пиала');c.innerHTML='<span class="u-tea"><i></i></span><em></em>';c.style.left=s.cup[0]+'%';c.style.top=s.cup[1]+'%';c.onclick=()=>request('tea',i);return c;});
 const kurtEl=el('u-kurt');
 const bubbleFor=new Map();
-function bubble(target,text,kind='thanks',ms=1800){let b=bubbleFor.get(target);if(!b){b=el('u-bubble');bubbleFor.set(target,b);}b.textContent=text;b.className='u-bubble '+kind;const r=target.getBoundingClientRect(),y=yard.getBoundingClientRect();if(!y.width||!r.width)return;b.style.left=clamp((r.left+r.width/2-y.left)/y.width*100,14,86)+'%';b.style.top=Math.max(2,(r.top-y.top)/y.height*100-1)+'%';void b.offsetWidth;b.classList.add('show');clearTimeout(b.timer);b.timer=setTimeout(()=>b.classList.remove('show'),ms);}
+function bubble(target,text,kind='thanks',ms=1800){let b=bubbleFor.get(target);if(!b){b=el('u-bubble');bubbleFor.set(target,b);}const atTable=target.classList.contains('u-seat');if(atTable)for(const [t,o] of bubbleFor)if(o!==b&&t.classList.contains('u-seat'))o.classList.remove('show');b.textContent=text;b.className='u-bubble '+kind;const r=target.getBoundingClientRect(),y=yard.getBoundingClientRect();if(!y.width||!r.width)return;const top=(r.top-y.top)/y.height*100,below=top<14;b.classList.toggle('below',below);b.style.left=clamp((r.left+r.width/2-y.left)/y.width*100,16,84)+'%';b.style.top=(below?(r.bottom-y.top)/y.height*100+1:Math.max(2,top-1))+'%';void b.offsetWidth;b.classList.add('show');clearTimeout(b.timer);b.timer=setTimeout(()=>b.classList.remove('show'),ms);}
 const rings={};
 function ring(key){if(!rings[key]){rings[key]=el('u-ring');rings[key].innerHTML='<i></i>';}return rings[key];}
 const gainEl=el('gain');gainEl.setAttribute('aria-hidden','true');
 const place=(e,[x,y])=>{e.style.left=x+'%';e.style.top=y+'%';};
-place(cradleEl,P.cradle);place(woodEl,P.wood);place(samovarHit,P.samovar);place(doorEl,P.door);place(hearthEl,P.hearth);place(kurtEl,[44,18]);const dishEl=el('u-dish-on');place(dishEl,[56,18]);
+place(cradleEl,P.cradle);place(woodEl,P.wood);place(samovarHit,P.samovar);place(doorEl,P.door);place(hearthEl,P.hearth);place(kurtEl,[46,20]);const dishEl=el('u-dish-on');place(dishEl,[54,20]);
 
 // ---------- Kelin's work: every task is a small route of steps (go / act)
 const TASKS={
@@ -1389,7 +1406,7 @@ function render(){
  if(!baby)return;
  const playing=state==='playing',t=dayT();
  // the sun: light from the shanyrak crosses the floor from the west (morning) to the east (evening)
- const ang=Math.PI*t,edge=Math.max(0,1-Math.min(t,1-t)/.18),r=30+10*edge,sx=50+r*Math.sin(ang)*.9,sy=46-r*Math.cos(ang);sunEl.style.left=sx+'%';sunEl.style.top=sy+'%';sunEl.style.setProperty('--rot',(-ang*180/Math.PI)+'deg');sunEl.style.setProperty('--stretch',(1+edge*.7).toFixed(3));{const dx=sx-50,dy=sy+8,len=Math.hypot(dx,dy);beamEl.style.height=len+'%';beamEl.style.transform='translateX(-50%) rotate('+(-Math.atan2(dx,dy)*180/Math.PI)+'deg)';}yard.style.setProperty('--dusk',Math.max(0,(t-.62)/.38).toFixed(3));yard.style.setProperty('--dawn',Math.max(0,1-t/.15).toFixed(3));
+ const ang=Math.PI*t,edge=Math.max(0,1-Math.min(t,1-t)/.18),r=30+10*edge,sx=50+r*Math.sin(ang)*.9,sy=46-r*Math.cos(ang);sunEl.style.left=sx+'%';sunEl.style.top=sy+'%';sunEl.style.setProperty('--rot',(-ang*180/Math.PI)+'deg');sunEl.style.setProperty('--stretch',(1+edge*.7).toFixed(3));{const dx=sx-50,dy=sy+8,len=Math.hypot(dx,dy);beamEl.style.height=len+'%';beamEl.style.transform='translateX(-50%) rotate('+(-Math.atan2(dx,dy)*180/Math.PI)+'deg)';}yard.style.setProperty('--dusk',Math.max(0,(t-.7)/.3).toFixed(3));yard.style.setProperty('--dawn',Math.max(0,1-t/.15).toFixed(3));
  // cradle and baby
  const holding=kelin.job&&kelin.job.type==='baby'&&kelin.job.holding;const rocking=kelin.job&&kelin.job.type==='baby'&&kelin.pose==='rock';
  const ajeHere=elders.aje.state==='kids';
@@ -1413,9 +1430,9 @@ function render(){
  woodEl.classList.toggle('wanted',fire.fuel<=35);dishEl.hidden=!(kazan.servedUntil>time);
  meter(fireMeter,fire.fuel/100,null,fire.fuel<=0?'🔥 погас!':'🔥 '+Math.ceil(fire.fuel)+'%');place(fireMeter,[P.hearth[0]-17,P.hearth[1]+2]);
  meter(cookMeter,kazan.ready?1-(time-kazan.readyAt)/kazan.patience:kazan.cook/100,null,kazan.ready?'🍲 готово!':'🍲 '+Math.floor(kazan.cook)+'%');cookMeter.classList.toggle('low',kazan.ready);cookMeter.classList.toggle('ready',kazan.ready);place(cookMeter,[P.hearth[0]+17,P.hearth[1]+2]);
- meter(samovarMeter,samovar.water/100,null,'♨ '+Math.floor(samovar.water)+'%');samovarMeter.classList.toggle('low',samovar.water<30);place(samovarMeter,[P.samovar[0]-3,P.samovar[1]-10]);samovarHit.classList.toggle('boiling',samovar.water>=30);
+ meter(samovarMeter,samovar.water/100,null,'♨ '+Math.floor(samovar.water)+'%');samovarMeter.classList.toggle('low',samovar.water<30);place(samovarMeter,[P.samovar[0]-1,P.samovar[1]+12]);samovarHit.classList.toggle('boiling',samovar.water>=30);
  // seats
- seatEls.forEach((b,i)=>{const s=seats[i];b.hidden=!s||s.away;if(!s||s.away)return;const p=PEOPLE[s.who];const face=b.querySelector('.u-face');face.style.backgroundImage='var(--mood'+p.mood+')';spriteAt(face,s.tea<=0?2:s.tea<=35?1:0,3);b.querySelector('small').textContent=p.name;b.classList.toggle('golden',s.tea>0&&s.tea<=35);b.classList.toggle('angry',s.tea<=0);b.classList.toggle('selected',!!(kelin.job&&kelin.job.type==='tea'&&kelin.job.seat===i));b.style.setProperty('--lvl',s.tea);b.querySelector('em').textContent=s.tea<=0?'💢':Math.ceil(s.tea)+'%';b.setAttribute('aria-label',p.name+': '+Math.ceil(s.tea)+'% чая. Налить');});
+ seatEls.forEach((b,i)=>{const s=seats[i];b.hidden=!s||s.away;if(!s||s.away){cupEls[i].hidden=true;return;}const p=PEOPLE[s.who];const face=b.querySelector('.u-face');face.style.backgroundImage='var(--mood'+p.mood+')';spriteAt(face,s.tea<=0?2:s.tea<=35?1:0,3);b.querySelector('small').textContent=p.name;b.classList.toggle('golden',s.tea>0&&s.tea<=35);b.classList.toggle('angry',s.tea<=0);b.classList.toggle('selected',!!(kelin.job&&kelin.job.type==='tea'&&kelin.job.seat===i));const cup=cupEls[i];cup.hidden=false;cup.style.setProperty('--lvl',s.tea);cup.classList.toggle('golden',s.tea>0&&s.tea<=35);cup.classList.toggle('angry',s.tea<=0);cup.querySelector('em').textContent=s.tea<=0?'💢':Math.ceil(s.tea)+'%';b.setAttribute('aria-label',p.name+': '+Math.ceil(s.tea)+'% чая. Налить');});
  // door: guest, Жаным, the dog
  guestEl.hidden=!door;doorEl.classList.toggle('knock',!!door);
  if(door){const p=PEOPLE[door.who];const f=guestEl.querySelector('.u-face');f.style.backgroundImage='var(--mood'+p.mood+')';spriteAt(f,time-door.since>door.total*.6?2:1,3);guestEl.querySelector('small').textContent=p.name;place(guestEl,[P.guestWait[0]+7,P.guestWait[1]]);}
@@ -1448,7 +1465,7 @@ function renderKelin(){
  const pot=kelinEl.querySelector('.u-pot');pot.textContent='🫖'+kelin.teapot;pot.classList.toggle('empty',kelin.teapot<=0);
 }
 const ASPECT=.8;/* width / height of the yurt picture */
-function measure(){const w=arena.clientWidth||390,h=(arena.clientHeight||480)-30,key=w+'x'+h;if(yard.dataset.side===key)return;yard.dataset.side=key;const contain=Math.min(w,h*ASPECT),cover=Math.max(w,h*ASPECT),yw=Math.min(cover,contain*1.12);yard.style.width=yw+'px';yard.style.height=(yw/ASPECT)+'px';yard.style.setProperty('--u',Math.min(yw,h*ASPECT*1.05)/400);}
+function measure(){const w=arena.clientWidth||390,h=(arena.clientHeight||480)-38,key=w+'x'+h;if(yard.dataset.side===key)return;yard.dataset.side=key;const contain=Math.min(w,h*ASPECT),cover=Math.max(w,h*ASPECT),yw=Math.min(cover,contain*1.12);yard.style.width=yw+'px';yard.style.height=(yw/ASPECT)+'px';yard.style.setProperty('--u',Math.min(yw,h*ASPECT*1.05)/400);}
 addEventListener('resize',()=>{yard.dataset.side='';});
 
 // ---------- Thumb buttons (two columns under the thumbs: kids on the left, hearth and tea on the right)
