@@ -1115,6 +1115,11 @@ html,body,#kelin-game,#kelin-game *{touch-action:manipulation}
 #kelin-game#kelin-game .gain.fast b{--o:#0e3558;--g:#58d0ff}
 #kelin-game#kelin-game .gain.nice b{--o:#1f4a0b;--g:#9be35a}
 #kelin-game#kelin-game .gain.miss b{--o:#4a0d05;--g:#ff6a4a}
+/* tour card: Әже's portrait is its own column, the advice text never wraps under it (same as «Келін», 6a75128) */
+#kelin-game .coach-card{display:grid!important;grid-template-columns:auto minmax(0,1fr);column-gap:10px;align-items:start}
+#kelin-game .coach-card .coach-ene{float:none;grid-row:1/4;margin:0!important}
+#kelin-game .coach-card>:is(small,b,p){grid-column:2}
+#kelin-game .coach-card .coach-actions{grid-column:1/-1}
 </style>
 <section class="intro disclaimer" data-i18n-aria="intro_aria"><div class="intro-top"><span></span><button type="button" class="intro-skip" data-i18n="skip"></button></div><div class="intro-art" aria-hidden="true"><div class="intro-person"></div><div class="intro-person"></div><div class="intro-person"></div><div class="intro-person"></div><div class="intro-kelin"></div></div><h1 data-intro-title>КЕЛІН</h1><p class="intro-copy"></p><div class="intro-progress"></div><button type="button" class="play intro-next"></button><div class="intro-footer" data-i18n="intro_footer"></div></section>
 <header class="top"><div><div class="brand" data-i18n="brand"></div><div class="sub" data-i18n="brand_sub"></div></div><button class="pause" type="button" disabled data-i18n="pause"></button></header>
