@@ -1108,7 +1108,7 @@ html,body,#kelin-game,#kelin-game *{touch-action:manipulation}
 #kelin-game .rec-card{cursor:default}
 /* KelinOrnament («қошқар мүйіз», capitals only; art/fonts/ornament.css): titles, the name, awards and big numbers.
    Body text and buttons stay Montserrat. The doubled id outranks the Montserrat !important rules of base.css. */
-#kelin-game#kelin-game :is(h1,h2,.brand,.gain b,.gain span,.catch-pop,.countdown-number,.mode-card b,.stat strong,.u-phase b,.coach-card b){font-family:'KelinOrnament','Montserrat',sans-serif!important;font-synthesis:none;letter-spacing:.02em!important}
+#kelin-game#kelin-game :is(h1,h2,.brand,.gain b,.gain span,.catch-pop,.countdown-number,.mode-card b,.stat strong:not([data-time]),.u-phase b,.coach-card b){font-family:'KelinOrnament','Montserrat',sans-serif!important;font-synthesis:none;letter-spacing:.02em!important}
 #kelin-game#kelin-game .intro.menu h1::after{font-family:'Montserrat',sans-serif!important;letter-spacing:5px!important}
 /* outlines by drop-shadow: a centred text-stroke eats the thin curls */
 #kelin-game#kelin-game :is(.gain b,.u-phase b){--o:#6b3410;--g:#ffc53a;-webkit-text-stroke:0!important;letter-spacing:.05em!important;text-shadow:none!important;filter:drop-shadow(1.5px 0 0 var(--o)) drop-shadow(-1.5px 0 0 var(--o)) drop-shadow(0 1.5px 0 var(--o)) drop-shadow(0 -1.5px 0 var(--o)) drop-shadow(0 3px 0 var(--o)) drop-shadow(0 0 10px var(--g))!important}
